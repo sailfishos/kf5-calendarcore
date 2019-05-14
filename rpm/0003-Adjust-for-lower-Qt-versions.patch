@@ -1,0 +1,254 @@
+From 2899ea172b342bf22e5a6533dee196ae354d5b7d Mon Sep 17 00:00:00 2001
+From: Damien Caliste <dcaliste@free.fr>
+Date: Tue, 14 May 2019 11:35:15 +0200
+Subject: [PATCH 3/3] Adjust for lower Qt versions.
+
+---
+ CMakeLists.txt              |  4 ++--
+ autotests/testrecurtodo.cpp |  5 +++++
+ src/icalformat.cpp          |  1 +
+ src/icalformat_p.cpp        |  2 ++
+ src/recurrencerule.cpp      | 32 ++++++++++++++++++++++++++++++++
+ src/utils.h                 |  8 ++++++++
+ src/vcalformat.cpp          |  8 ++++----
+ 7 files changed, 54 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 727c611dc..f7a27f41a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -4,7 +4,7 @@ set(PIM_VERSION "5.11.41")
+ project(KCalCore VERSION ${PIM_VERSION})
+ 
+ # ECM setup
+-set(KF5_MIN_VERSION "5.57.0")
++set(KF5_MIN_VERSION "5.44.0")
+ 
+ find_package(ECM ${KF5_MIN_VERSION} CONFIG REQUIRED)
+ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${KCalCore_SOURCE_DIR}/cmake)
+@@ -23,7 +23,7 @@ include(ECMQtDeclareLoggingCategory)
+ if(POLICY CMP0053)
+   cmake_policy(SET CMP0053 NEW)
+ endif()
+-set(QT_REQUIRED_VERSION "5.10.0")
++set(QT_REQUIRED_VERSION "5.6.0")
+ 
+ set(KCALENDARCORE_LIB_VERSION ${PIM_VERSION})
+ ecm_setup_version(PROJECT VARIABLE_PREFIX KCALCORE
+diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
+index 590d38837..0474f1fc2 100644
+--- a/autotests/testrecurtodo.cpp
++++ b/autotests/testrecurtodo.cpp
+@@ -163,7 +163,12 @@ void RecurTodoTest::testRecurTodo_data()
+     QTest::addColumn<QDateTime>("dtdue");
+ 
+     // Can't use QDateTime::currentDateTimeUtc() due to milliseconds mismatching
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+     const QDateTime today = QDateTime::fromSecsSinceEpoch(QDateTime::currentSecsSinceEpoch(), Qt::UTC);
++#else
++    qint64 msecs = QDateTime::currentMSecsSinceEpoch() / 1000;
++    const QDateTime today = QDateTime::fromMSecsSinceEpoch(msecs * 1000, Qt::UTC);
++#endif
+     const QDateTime tomorrow = today.addDays(1);
+     const QDateTime invalid;
+ 
+diff --git a/src/icalformat.cpp b/src/icalformat.cpp
+index 4501db50e..e5c1308b7 100644
+--- a/src/icalformat.cpp
++++ b/src/icalformat.cpp
+@@ -35,6 +35,7 @@
+ #include "memorycalendar.h"
+ #include "kcalcore_debug.h"
+ #include "calendar_p.h"
++#include "utils.h"
+ 
+ #include <QSaveFile>
+ #include <QFile>
+diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
+index dbd5d0930..5cde5d21f 100644
+--- a/src/icalformat_p.cpp
++++ b/src/icalformat_p.cpp
+@@ -2568,7 +2568,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+             break;
+         }
+     } //end of ICAL_X_PROPERTY
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+     Q_FALLTHROUGH();
++#endif
+     default:
+         switch (kind) {
+         case ICAL_RDATE_PROPERTY:
+diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
+index 8d0f61c06..ae260bbc9 100644
+--- a/src/recurrencerule.cpp
++++ b/src/recurrencerule.cpp
+@@ -668,19 +668,29 @@ bool Constraint::readDateTime(const QDateTime &dt, RecurrenceRule::PeriodType ty
+     // Really fall through! Only weekly needs to be treated differently!
+     case RecurrenceRule::rSecondly:
+         second = dt.time().second();
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case RecurrenceRule::rMinutely:
+         minute = dt.time().minute();
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case RecurrenceRule::rHourly:
+         hour = dt.time().hour();
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case RecurrenceRule::rDaily:
+         day = dt.date().day();
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case RecurrenceRule::rMonthly:
+         month = dt.date().month();
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case RecurrenceRule::rYearly:
+         year = dt.date().year();
+         break;
+@@ -1275,29 +1285,39 @@ void RecurrenceRule::Private::buildConstraints()
+                 mByYearDays.isEmpty() && mByMonths.isEmpty()) {
+             fixConstraint(setMonth, mDateStart.date().month());
+         }
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rMonthly:
+         if (mByDays.isEmpty() && mByWeekNumbers.isEmpty() &&
+                 mByYearDays.isEmpty() && mByMonthDays.isEmpty()) {
+             fixConstraint(setDay, mDateStart.date().day());
+         }
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rWeekly:
+     case rDaily:
+         if (mByHours.isEmpty()) {
+             fixConstraint(setHour, mDateStart.time().hour());
+         }
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rHourly:
+         if (mByMinutes.isEmpty()) {
+             fixConstraint(setMinute, mDateStart.time().minute());
+         }
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rMinutely:
+         if (mBySeconds.isEmpty()) {
+             fixConstraint(setSecond, mDateStart.time().second());
+         }
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rSecondly:
+     default:
+         break;
+@@ -1858,10 +1878,14 @@ Constraint RecurrenceRule::Private::getPreviousValidDateInterval(const QDateTime
+     // by the factor 60 and 60*60! Same for weekly and daily (factor 7)
+     case rHourly:
+         modifier *= 60;
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rMinutely:
+         modifier *= 60;
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rSecondly:
+         periods = static_cast<int>(start.secsTo(toDate) / modifier);
+         // round it down to the next lower multiple of frequency:
+@@ -1874,7 +1898,9 @@ Constraint RecurrenceRule::Private::getPreviousValidDateInterval(const QDateTime
+         toDate = toDate.addDays(-(7 + toDate.date().dayOfWeek() - mWeekStart) % 7);
+         start = start.addDays(-(7 + start.date().dayOfWeek() - mWeekStart) % 7);
+         modifier *= 7;
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rDaily:
+         periods = start.daysTo(toDate) / modifier;
+         // round it down to the next lower multiple of frequency:
+@@ -1933,10 +1959,14 @@ Constraint RecurrenceRule::Private::getNextValidDateInterval(const QDateTime &dt
+     // by the factor 60 and 60*60! Same for weekly and daily (factor 7)
+     case rHourly:
+         modifier *= 60;
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rMinutely:
+         modifier *= 60;
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rSecondly:
+         periods = static_cast<int>(start.secsTo(toDate) / modifier);
+         periods = qMax(0L, periods);
+@@ -1950,7 +1980,9 @@ Constraint RecurrenceRule::Private::getNextValidDateInterval(const QDateTime &dt
+         toDate = toDate.addDays(-(7 + toDate.date().dayOfWeek() - mWeekStart) % 7);
+         start = start.addDays(-(7 + start.date().dayOfWeek() - mWeekStart) % 7);
+         modifier *= 7;
++#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+         Q_FALLTHROUGH();
++#endif
+     case rDaily:
+         periods = start.daysTo(toDate) / modifier;
+         periods = qMax(0L, periods);
+diff --git a/src/utils.h b/src/utils.h
+index 63992fa45..0cd8af1d4 100644
+--- a/src/utils.h
++++ b/src/utils.h
+@@ -42,6 +42,14 @@ void deserializeQDateTimeList(QDataStream &in, QList<QDateTime> &list);
+ void serializeQTimeZoneAsSpec(QDataStream &out, const QTimeZone &tz);
+ void deserializeSpecAsQTimeZone(QDataStream &in, QTimeZone &tz);
+ 
++#if (QT_VERSION < QT_VERSION_CHECK(5, 7, 0))
++template <typename T>
++const T& qAsConst(T &t)
++{
++  return const_cast<const T&>(t);
++}
++#endif
++
+ }
+ 
+ #endif
+diff --git a/src/vcalformat.cpp b/src/vcalformat.cpp
+index d7cb7207f..dd3759999 100644
+--- a/src/vcalformat.cpp
++++ b/src/vcalformat.cpp
+@@ -354,9 +354,9 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+             tmpStr = tmpStr.toUpper();
+             // first, read the type of the recurrence
+             recurrenceTypeAbbrLen = 1;
+-            if (tmpStr.at(0) == QLatin1String("D")) {
++            if (tmpStr.at(0) == QLatin1Char('D')) {
+                 recurrenceType = Recurrence::rDaily;
+-            } else if (tmpStr.at(0) == QLatin1String("W")) {
++            } else if (tmpStr.at(0) == QLatin1Char('W')) {
+                 recurrenceType = Recurrence::rWeekly;
+             } else if (tmpStrLen > 1) {
+                 recurrenceTypeAbbrLen = 2;
+@@ -798,9 +798,9 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
+             tmpStr = tmpStr.toUpper();
+             // first, read the type of the recurrence
+             recurrenceTypeAbbrLen = 1;
+-            if (tmpStr.at(0) == QLatin1String("D")) {
++            if (tmpStr.at(0) == QLatin1Char('D')) {
+                 recurrenceType = Recurrence::rDaily;
+-            } else if (tmpStr.at(0) == QLatin1String("W")) {
++            } else if (tmpStr.at(0) == QLatin1Char('W')) {
+                 recurrenceType = Recurrence::rWeekly;
+             } else if (tmpStrLen > 1){
+                 recurrenceTypeAbbrLen = 2;
+-- 
+2.17.1
+

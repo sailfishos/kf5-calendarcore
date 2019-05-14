@@ -1,0 +1,83 @@
+From 5bcbce7893692213a73e03fe366089fcb1c34bfc Mon Sep 17 00:00:00 2001
+From: Damien Caliste <dcaliste@free.fr>
+Date: Mon, 2 Oct 2017 09:14:56 +0200
+Subject: [PATCH 2/3] Create second-type duration for 0 delay durations in ical
+ format.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In various portion of the code, Duration( 0 ) is used to represent a zero
+delay duration (see alarm.cpp for examples). But when reading an ical format,
+the zero delay duration is created with Duration( 0, Days ) which makes
+comparison always fail for zero delay durations…
+---
+ autotests/testicalformat.cpp | 28 ++++++++++++++++++++++++++++
+ autotests/testicalformat.h   |  1 +
+ src/icalformat_p.cpp         |  2 +-
+ 3 files changed, 30 insertions(+), 1 deletion(-)
+
+diff --git a/autotests/testicalformat.cpp b/autotests/testicalformat.cpp
+index a251a0d67..47300c43b 100644
+--- a/autotests/testicalformat.cpp
++++ b/autotests/testicalformat.cpp
+@@ -150,3 +150,31 @@ void ICalFormatTest::testCuType()
+     QVERIFY(attendee2->name() == attendee->name());
+     QVERIFY(attendee2->email() == attendee->email());
+ }
++
++void ICalFormatTest::testAlarm()
++{
++    ICalFormat format;
++
++    const QString serializedCalendar
++      = QStringLiteral("BEGIN:VCALENDAR\n"
++                       "PRODID:-//Thunderbird almost\n"
++                       "VERSION:2.0\n"
++                       "BEGIN:VEVENT\n"
++                       "UID:123456789\n"
++                       "SUMMARY:Alarm\n"
++                       "DESCRIPTION:Alarm with relative time.\n"
++                       "DTSTART;VALUE=DATE:20170324\n"
++                       "DTEND;VALUE=DATE:20170325\n"
++                       "BEGIN:VALARM\n"
++                       "ACTION:DISPLAY\n"
++                       "TRIGGER;VALUE=DURATION:-PT6H\n"
++                       "END:VALARM\n"
++                       "END:VEVENT\n"
++                       "END:VCALENDAR\n");
++
++    Incidence::Ptr event = format.fromString(serializedCalendar);
++    QCOMPARE(event->alarms().length(), 1);
++    Alarm::Ptr alarm = event->alarms()[0];
++    QCOMPARE(alarm->time(), QDateTime::fromString(QStringLiteral("2017-03-23T18:00:00"), Qt::ISODate));
++    QCOMPARE(alarm->duration(), Duration(0));
++}
+diff --git a/autotests/testicalformat.h b/autotests/testicalformat.h
+index efbdd5d5d..0fc19ed76 100644
+--- a/autotests/testicalformat.h
++++ b/autotests/testicalformat.h
+@@ -32,6 +32,7 @@ private Q_SLOTS:
+     void testCharsets();
+     void testVolatileProperties();
+     void testCuType();
++    void testAlarm();
+ };
+ 
+ #endif
+diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
+index 1a3c6bc04..dbd5d0930 100644
+--- a/src/icalformat_p.cpp
++++ b/src/icalformat_p.cpp
+@@ -2644,7 +2644,7 @@ Duration ICalFormatImpl::readICalDuration(const icaldurationtype &d)
+     int seconds = d.hours * gSecondsPerHour;
+     seconds += d.minutes * gSecondsPerMinute;
+     seconds += d.seconds;
+-    if (seconds) {
++    if (seconds || !days) { // Create second-type duration for 0 delay durations.
+         seconds += days * gSecondsPerDay;
+         if (d.is_neg) {
+             seconds = -seconds;
+-- 
+2.17.1
+
