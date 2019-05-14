@@ -1,0 +1,52 @@
+From 01359f9717c3d1df71165fa90faa766df6fa27f8 Mon Sep 17 00:00:00 2001
+From: Damien Caliste <dcaliste@free.fr>
+Date: Tue, 14 May 2019 13:30:00 +0200
+Subject: [PATCH] Add pkgconfig packaging.
+
+---
+ CMakeLists.txt        | 11 +++++++++++
+ KF5CalendarCore.pc.in | 12 ++++++++++++
+ 2 files changed, 23 insertions(+)
+ create mode 100644 KF5CalendarCore.pc.in
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 727c611dc..8874f17e9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -92,4 +92,15 @@ install(FILES
+ 
+ install(FILES kcalcore.renamecategories kcalcore.categories DESTINATION ${KDE_INSTALL_CONFDIR})
+ 
++# generate pkg-config file
++set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
++set(VERSION "${KF5_VERSION}")
++set(COMMA_SEAPARATED_LIST "KF5CalendarCore")
++
++foreach(LIB ${COMMA_SEAPARATED_LIST})
++  set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
++endforeach()
++
++CONFIGURE_FILE("KF5CalendarCore.pc.in" "KF5CalendarCore.pc" @ONLY)
++
+ feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+diff --git a/KF5CalendarCore.pc.in b/KF5CalendarCore.pc.in
+new file mode 100644
+index 000000000..c8e2f65b9
+--- /dev/null
++++ b/KF5CalendarCore.pc.in
+@@ -0,0 +1,12 @@
++prefix=@DEST_DIR@
++exec_prefix=${prefix}
++libdir=${prefix}/lib
++includedir=${prefix}/include/KF5/KCalCore
++
++Name: kf5-calendarcore
++Description: A library for handling vCAL objects
++Version: @VERSION@
++
++Requires: Qt5Core Qt5Gui
++Libs: -L${libdir} @PRIVATE_LIBS@
++Cflags: -I${includedir}
+-- 
+2.17.1
+
