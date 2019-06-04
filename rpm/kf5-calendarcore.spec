@@ -16,9 +16,8 @@ BuildRequires:  pkgconfig(libical)
 BuildRequires:  extra-cmake-modules >= 5.44.0
 
 Patch1: 0001-Use-UTC-times-when-calculating-the-transition-dates-.patch
-Patch2: 0002-Create-second-type-duration-for-0-delay-durations-in.patch
-Patch3: 0003-Adjust-for-lower-Qt-versions.patch
-Patch4: 0004-Add-pkgconfig-packaging.patch
+Patch2: 0003-Adjust-for-lower-Qt-versions.patch
+Patch3: 0004-Add-pkgconfig-packaging.patch
 
 %description
 KDE Framework calendar core library
@@ -38,7 +37,6 @@ applications using %{name}
 %patch1 -d upstream -p1
 %patch2 -d upstream -p1
 %patch3 -d upstream -p1
-%patch4 -d upstream -p1
 
 %build
 if [ ! -d upstream/build ] ; then mkdir upstream/build ; fi ; cd upstream/build
