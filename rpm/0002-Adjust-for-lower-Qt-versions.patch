@@ -1,45 +1,66 @@
-From 2899ea172b342bf22e5a6533dee196ae354d5b7d Mon Sep 17 00:00:00 2001
+From fb61c591cefc214dad2d947a9b987d8d05d4c90e Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
-Subject: [PATCH 3/3] Adjust for lower Qt versions.
+Subject: [PATCH 2/3] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt              |  4 ++--
- autotests/testrecurtodo.cpp |  5 +++++
- src/icalformat.cpp          |  1 +
- src/icalformat_p.cpp        |  2 ++
- src/recurrencerule.cpp      | 32 ++++++++++++++++++++++++++++++++
- src/utils.h                 |  8 ++++++++
- src/vcalformat.cpp          |  8 ++++----
- 7 files changed, 54 insertions(+), 6 deletions(-)
+ CMakeLists.txt                   |  6 +++---
+ autotests/testmemorycalendar.cpp |  2 +-
+ autotests/testrecurtodo.cpp      |  5 +++++
+ src/calendar.cpp                 |  1 +
+ src/icalformat.cpp               |  1 +
+ src/icalformat_p.cpp             |  3 +++
+ src/occurrenceiterator.cpp       |  1 +
+ src/recurrencerule.cpp           | 32 ++++++++++++++++++++++++++++++++
+ src/utils_p.h                    |  8 ++++++++
+ 9 files changed, 55 insertions(+), 4 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 727c611dc..f7a27f41a 100644
+index 1d0e92332..87e28e1db 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -4,7 +4,7 @@ set(PIM_VERSION "5.11.41")
- project(KCalCore VERSION ${PIM_VERSION})
+@@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF5_VERSION})
  
  # ECM setup
--set(KF5_MIN_VERSION "5.58.0")
-+set(KF5_MIN_VERSION "5.44.0")
+ include(FeatureSummary)
+-find_package(ECM 5.63.0  NO_MODULE)
++find_package(ECM 5.44.0  NO_MODULE)
+ set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://projects.kde.org/projects/kdesupport/extra-cmake-modules")
+ feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
  
- find_package(ECM ${KF5_MIN_VERSION} CONFIG REQUIRED)
- set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${KCalCore_SOURCE_DIR}/cmake)
-@@ -23,7 +23,7 @@ include(ECMQtDeclareLoggingCategory)
- if(POLICY CMP0053)
-   cmake_policy(SET CMP0053 NEW)
+ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+ 
+-set(REQUIRED_QT_VERSION 5.11.0)
++set(REQUIRED_QT_VERSION 5.6.0)
+ 
+ include(KDEInstallDirs)
+ include(KDECMakeSettings)
+@@ -118,6 +118,6 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
+   )
  endif()
--set(QT_REQUIRED_VERSION "5.10.0")
-+set(QT_REQUIRED_VERSION "5.6.0")
  
- set(KCALENDARCORE_LIB_VERSION ${PIM_VERSION})
- ecm_setup_version(PROJECT VARIABLE_PREFIX KCALCORE
+-install(FILES kcalendarcore.renamecategories kcalendarcore.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
++#install(FILES kcalendarcore.renamecategories kcalendarcore.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
+ 
+ feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
+index 27b1e6207..8a36fe1ae 100644
+--- a/autotests/testmemorycalendar.cpp
++++ b/autotests/testmemorycalendar.cpp
+@@ -127,7 +127,7 @@ void MemoryCalendarTest::testIncidences()
+ 
+     QVERIFY(store.load());
+     Todo::Ptr todo = cal->incidence(QStringLiteral("4")).staticCast<Todo>();
+-    QVERIFY(todo->uid() == QLatin1Char('4'));
++    QCOMPARE(todo->uid(), QStringLiteral("4"));
+     QVERIFY(todo->summaryIsRich());
+     QVERIFY(todo->locationIsRich());
+     cal->close();
 diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
-index 590d38837..0474f1fc2 100644
+index 9ee18570b..b3b842157 100644
 --- a/autotests/testrecurtodo.cpp
 +++ b/autotests/testrecurtodo.cpp
-@@ -163,7 +163,12 @@ void RecurTodoTest::testRecurTodo_data()
+@@ -162,7 +162,12 @@ void RecurTodoTest::testRecurTodo_data()
      QTest::addColumn<QDateTime>("dtdue");
  
      // Can't use QDateTime::currentDateTimeUtc() due to milliseconds mismatching
@@ -52,23 +73,43 @@ index 590d38837..0474f1fc2 100644
      const QDateTime tomorrow = today.addDays(1);
      const QDateTime invalid;
  
+diff --git a/src/calendar.cpp b/src/calendar.cpp
+index d163e82ba..304bfc4b2 100644
+--- a/src/calendar.cpp
++++ b/src/calendar.cpp
+@@ -40,6 +40,7 @@
+ #include "icaltimezones_p.h"
+ #include "sorting.h"
+ #include "visitor.h"
++#include "utils_p.h"
+ 
+ #include "kcalendarcore_debug.h"
+ 
 diff --git a/src/icalformat.cpp b/src/icalformat.cpp
-index 4501db50e..e5c1308b7 100644
+index 05706a5a2..5a819d1e6 100644
 --- a/src/icalformat.cpp
 +++ b/src/icalformat.cpp
 @@ -35,6 +35,7 @@
  #include "memorycalendar.h"
- #include "kcalcore_debug.h"
+ #include "kcalendarcore_debug.h"
  #include "calendar_p.h"
-+#include "utils.h"
++#include "utils_p.h"
  
  #include <QSaveFile>
  #include <QFile>
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index dbd5d0930..5cde5d21f 100644
+index e146c7b4b..5824067e6 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
-@@ -2568,7 +2568,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -45,6 +45,7 @@
+ #include "memorycalendar.h"
+ #include "todo.h"
+ #include "visitor.h"
++#include "utils_p.h"
+ 
+ #include "kcalendarcore_debug.h"
+ 
+@@ -2567,7 +2568,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
      } //end of ICAL_X_PROPERTY
@@ -78,8 +119,20 @@ index dbd5d0930..5cde5d21f 100644
      default:
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
+diff --git a/src/occurrenceiterator.cpp b/src/occurrenceiterator.cpp
+index ef6abe1ac..1ad428442 100644
+--- a/src/occurrenceiterator.cpp
++++ b/src/occurrenceiterator.cpp
+@@ -32,6 +32,7 @@
+ #include "occurrenceiterator.h"
+ #include "calendar.h"
+ #include "calfilter.h"
++#include "utils_p.h"
+ 
+ #include <QDate>
+ 
 diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
-index 8d0f61c06..ae260bbc9 100644
+index 9fb070092..38bd6ac0f 100644
 --- a/src/recurrencerule.cpp
 +++ b/src/recurrencerule.cpp
 @@ -668,19 +668,29 @@ bool Constraint::readDateTime(const QDateTime &dt, RecurrenceRule::PeriodType ty
@@ -202,10 +255,10 @@ index 8d0f61c06..ae260bbc9 100644
      case rDaily:
          periods = start.daysTo(toDate) / modifier;
          periods = qMax(0L, periods);
-diff --git a/src/utils.h b/src/utils.h
-index 63992fa45..0cd8af1d4 100644
---- a/src/utils.h
-+++ b/src/utils.h
+diff --git a/src/utils_p.h b/src/utils_p.h
+index bb9025329..9075b41dd 100644
+--- a/src/utils_p.h
++++ b/src/utils_p.h
 @@ -42,6 +42,14 @@ void deserializeQDateTimeList(QDataStream &in, QList<QDateTime> &list);
  void serializeQTimeZoneAsSpec(QDataStream &out, const QTimeZone &tz);
  void deserializeSpecAsQTimeZone(QDataStream &in, QTimeZone &tz);
@@ -221,34 +274,6 @@ index 63992fa45..0cd8af1d4 100644
  }
  
  #endif
-diff --git a/src/vcalformat.cpp b/src/vcalformat.cpp
-index d7cb7207f..dd3759999 100644
---- a/src/vcalformat.cpp
-+++ b/src/vcalformat.cpp
-@@ -354,9 +354,9 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
-             tmpStr = tmpStr.toUpper();
-             // first, read the type of the recurrence
-             recurrenceTypeAbbrLen = 1;
--            if (tmpStr.at(0) == QLatin1String("D")) {
-+            if (tmpStr.at(0) == QLatin1Char('D')) {
-                 recurrenceType = Recurrence::rDaily;
--            } else if (tmpStr.at(0) == QLatin1String("W")) {
-+            } else if (tmpStr.at(0) == QLatin1Char('W')) {
-                 recurrenceType = Recurrence::rWeekly;
-             } else if (tmpStrLen > 1) {
-                 recurrenceTypeAbbrLen = 2;
-@@ -798,9 +798,9 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
-             tmpStr = tmpStr.toUpper();
-             // first, read the type of the recurrence
-             recurrenceTypeAbbrLen = 1;
--            if (tmpStr.at(0) == QLatin1String("D")) {
-+            if (tmpStr.at(0) == QLatin1Char('D')) {
-                 recurrenceType = Recurrence::rDaily;
--            } else if (tmpStr.at(0) == QLatin1String("W")) {
-+            } else if (tmpStr.at(0) == QLatin1Char('W')) {
-                 recurrenceType = Recurrence::rWeekly;
-             } else if (tmpStrLen > 1){
-                 recurrenceTypeAbbrLen = 2;
 -- 
 2.17.1
 

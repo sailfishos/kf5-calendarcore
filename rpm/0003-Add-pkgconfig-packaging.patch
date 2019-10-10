@@ -1,7 +1,7 @@
-From 01359f9717c3d1df71165fa90faa766df6fa27f8 Mon Sep 17 00:00:00 2001
+From 6b15bb1ffcb3562575690c933873ca71019d8773 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 13:30:00 +0200
-Subject: [PATCH] Add pkgconfig packaging.
+Subject: [PATCH 3/3] Add pkgconfig packaging.
 
 ---
  CMakeLists.txt        | 11 +++++++++++
@@ -10,12 +10,12 @@ Subject: [PATCH] Add pkgconfig packaging.
  create mode 100644 KF5CalendarCore.pc.in
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 727c611dc..8874f17e9 100644
+index 87e28e1db..53282b9d5 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -92,4 +92,15 @@ install(FILES
+@@ -120,4 +120,15 @@ endif()
  
- install(FILES kcalcore.renamecategories kcalcore.categories DESTINATION ${KDE_INSTALL_CONFDIR})
+ #install(FILES kcalendarcore.renamecategories kcalendarcore.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
  
 +# generate pkg-config file
 +set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
@@ -34,11 +34,11 @@ new file mode 100644
 index 000000000..c8e2f65b9
 --- /dev/null
 +++ b/KF5CalendarCore.pc.in
-@@ -0,0 +1,12 @@
+@@ -0,1 +1,12 @@
 +prefix=@DEST_DIR@
 +exec_prefix=${prefix}
 +libdir=${prefix}/lib
-+includedir=${prefix}/include/KF5/KCalCore
++includedir=${prefix}/include/KF5/KCalendarCore
 +
 +Name: kf5-calendarcore
 +Description: A library for handling vCAL objects

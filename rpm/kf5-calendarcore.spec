@@ -1,7 +1,7 @@
 Name:       kf5-calendarcore
 Summary:    KDE calendar library
-Version:    19.04.1
-Release:    1
+Version:    5.63.0
+Release:    rc1
 Group:      System/Libraries
 License:    LGPLv2
 URL:        https://phabricator.kde.org/source/kcalcore
@@ -16,8 +16,8 @@ BuildRequires:  pkgconfig(libical)
 BuildRequires:  extra-cmake-modules >= 5.44.0
 
 Patch1: 0001-Use-UTC-times-when-calculating-the-transition-dates-.patch
-Patch2: 0003-Adjust-for-lower-Qt-versions.patch
-Patch3: 0004-Add-pkgconfig-packaging.patch
+Patch2: 0002-Adjust-for-lower-Qt-versions.patch
+Patch3: 0003-Add-pkgconfig-packaging.patch
 
 %description
 KDE Framework calendar core library
@@ -58,7 +58,6 @@ install KF5CalendarCore.pc %{pkg_config_dir}
 %files
 %defattr(-,root,root,-)
 %{_libdir}/libKF5CalendarCore.so.*
-%{_sysconfdir}/xdg
 
 %files devel
 %defattr(-,root,root,-)
