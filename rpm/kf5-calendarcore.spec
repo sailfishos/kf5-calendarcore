@@ -1,7 +1,7 @@
 Name:       kf5-calendarcore
 Summary:    KDE calendar library
-Version:    5.63.0
-Release:    rc1
+Version:    5.64.0
+Release:    1
 Group:      System/Libraries
 License:    LGPLv2
 URL:        https://phabricator.kde.org/source/kcalcore

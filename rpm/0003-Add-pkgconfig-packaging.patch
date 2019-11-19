@@ -1,4 +1,4 @@
-From 6b15bb1ffcb3562575690c933873ca71019d8773 Mon Sep 17 00:00:00 2001
+From b1f9685c59a4658a69f49a23914c50f921b6e555 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 13:30:00 +0200
 Subject: [PATCH 3/3] Add pkgconfig packaging.
@@ -10,10 +10,10 @@ Subject: [PATCH 3/3] Add pkgconfig packaging.
  create mode 100644 KF5CalendarCore.pc.in
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 87e28e1db..53282b9d5 100644
+index 873eb2ca7..283415226 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -120,4 +120,15 @@ endif()
+@@ -122,4 +122,15 @@ endif()
  
  #install(FILES kcalendarcore.renamecategories kcalendarcore.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
  
@@ -31,10 +31,10 @@ index 87e28e1db..53282b9d5 100644
  feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 diff --git a/KF5CalendarCore.pc.in b/KF5CalendarCore.pc.in
 new file mode 100644
-index 000000000..c8e2f65b9
+index 000000000..b17360158
 --- /dev/null
 +++ b/KF5CalendarCore.pc.in
-@@ -0,1 +1,12 @@
+@@ -0,0 +1,12 @@
 +prefix=@DEST_DIR@
 +exec_prefix=${prefix}
 +libdir=${prefix}/lib

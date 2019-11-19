@@ -1,29 +1,33 @@
-From fb61c591cefc214dad2d947a9b987d8d05d4c90e Mon Sep 17 00:00:00 2001
+From 9dc6a2a15810775f7844a6b64a71e4812d402573 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH 2/3] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                   |  6 +++---
+ CMakeLists.txt                   |  8 ++++----
  autotests/testmemorycalendar.cpp |  2 +-
  autotests/testrecurtodo.cpp      |  5 +++++
+ src/CMakeLists.txt               | 19 ++++++++++---------
  src/calendar.cpp                 |  1 +
  src/icalformat.cpp               |  1 +
  src/icalformat_p.cpp             |  3 +++
+ src/memorycalendar.cpp           |  4 ++--
  src/occurrenceiterator.cpp       |  1 +
+ src/recurrence.cpp               |  2 --
+ src/recurrence.h                 |  5 -----
  src/recurrencerule.cpp           | 32 ++++++++++++++++++++++++++++++++
  src/utils_p.h                    |  8 ++++++++
- 9 files changed, 55 insertions(+), 4 deletions(-)
+ 13 files changed, 68 insertions(+), 23 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 1d0e92332..87e28e1db 100644
+index 7c76578ea..873eb2ca7 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF5_VERSION})
+@@ -5,19 +5,19 @@ project(KCalendarCore VERSION ${KF5_VERSION})
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.63.0  NO_MODULE)
+-find_package(ECM 5.64.0  NO_MODULE)
 +find_package(ECM 5.44.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://projects.kde.org/projects/kdesupport/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
@@ -35,7 +39,14 @@ index 1d0e92332..87e28e1db 100644
  
  include(KDEInstallDirs)
  include(KDECMakeSettings)
-@@ -118,6 +118,6 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
+ include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
+ 
+-include(ECMGenerateExportHeader)
++include(GenerateExportHeader)
+ include(ECMGenerateHeaders)
+ include(ECMGeneratePriFile)
+ 
+@@ -120,6 +120,6 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
    )
  endif()
  
@@ -44,10 +55,10 @@ index 1d0e92332..87e28e1db 100644
  
  feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
-index 27b1e6207..8a36fe1ae 100644
+index f006e6aa5..74dea4d88 100644
 --- a/autotests/testmemorycalendar.cpp
 +++ b/autotests/testmemorycalendar.cpp
-@@ -127,7 +127,7 @@ void MemoryCalendarTest::testIncidences()
+@@ -134,7 +134,7 @@ void MemoryCalendarTest::testIncidences()
  
      QVERIFY(store.load());
      Todo::Ptr todo = cal->incidence(QStringLiteral("4")).staticCast<Todo>();
@@ -73,8 +84,38 @@ index 9ee18570b..b3b842157 100644
      const QDateTime tomorrow = today.addDays(1);
      const QDateTime invalid;
  
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 72ab6cff9..70f46a552 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -42,15 +42,16 @@ ecm_qt_declare_logging_category(kcalcore_LIB_SRCS HEADER kcalendarcore_debug.h I
+ add_library(KF5CalendarCore ${kcalcore_LIB_SRCS})
+ add_library(KF5::CalendarCore ALIAS KF5CalendarCore)
+ 
+-ecm_generate_export_header(KF5CalendarCore
+-    BASE_NAME kcalendarcore
+-    GROUP_BASE_NAME KF
+-    VERSION ${KF5_VERSION}
+-    DEPRECATED_BASE_VERSION 0
+-    DEPRECATION_VERSIONS 5.64
+-    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
+-)
+-
++#ecm_generate_export_header(KF5CalendarCore
++#    BASE_NAME kcalendarcore
++#    GROUP_BASE_NAME KF
++#    VERSION ${KF5_VERSION}
++#    DEPRECATED_BASE_VERSION 0
++#    DEPRECATION_VERSIONS 5.64
++#    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
++#)
++generate_export_header(KF5CalendarCore
++    BASE_NAME kcalendarcore)
+ 
+ # backward compatibility with the old name
+ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
 diff --git a/src/calendar.cpp b/src/calendar.cpp
-index d163e82ba..304bfc4b2 100644
+index 7a4569086..4f8af6de6 100644
 --- a/src/calendar.cpp
 +++ b/src/calendar.cpp
 @@ -40,6 +40,7 @@
@@ -119,6 +160,21 @@ index e146c7b4b..5824067e6 100644
      default:
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
+diff --git a/src/memorycalendar.cpp b/src/memorycalendar.cpp
+index c45448759..1e2a5d496 100644
+--- a/src/memorycalendar.cpp
++++ b/src/memorycalendar.cpp
+@@ -222,8 +222,8 @@ bool MemoryCalendar::deleteIncidence(const Incidence::Ptr &incidence)
+     removeRelations(incidence);
+     const Incidence::IncidenceType type = incidence->type();
+     const QString uid = incidence->uid();
+-    auto incidenceIt = d->mIncidences[type].constFind(uid);
+-    if (incidenceIt != d->mIncidences[type].cend()) {
++    auto incidenceIt = d->mIncidences[type].find(uid);
++    if (incidenceIt != d->mIncidences[type].end()) {
+         // Notify while the incidence is still available,
+         // this is necessary so korganizer still has time to query for exceptions
+         notifyIncidenceAboutToBeDeleted(incidence);
 diff --git a/src/occurrenceiterator.cpp b/src/occurrenceiterator.cpp
 index ef6abe1ac..1ad428442 100644
 --- a/src/occurrenceiterator.cpp
@@ -131,6 +187,49 @@ index ef6abe1ac..1ad428442 100644
  
  #include <QDate>
  
+diff --git a/src/recurrence.cpp b/src/recurrence.cpp
+index 080273fb6..a1b5f483d 100644
+--- a/src/recurrence.cpp
++++ b/src/recurrence.cpp
+@@ -150,7 +150,6 @@ bool Recurrence::operator==(const Recurrence &recurrence) const
+     return *d == *recurrence.d;
+ }
+ 
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 64)
+ Recurrence &Recurrence::operator=(const Recurrence &recurrence)
+ {
+     // check for self assignment
+@@ -163,7 +162,6 @@ Recurrence &Recurrence::operator=(const Recurrence &recurrence)
+     *d = *recurrence.d;
+     return *this;
+ }
+-#endif
+ 
+ void Recurrence::addObserver(RecurrenceObserver *observer)
+ {
+diff --git a/src/recurrence.h b/src/recurrence.h
+index e6dff9317..4f9530102 100644
+--- a/src/recurrence.h
++++ b/src/recurrence.h
+@@ -146,18 +146,13 @@ public:
+         return !operator==(r);
+     }
+ 
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 64)
+     /**
+       Assignment operator.
+       @param r the recurrence which will be assigned to this.
+       @deprecated Do not use, will be removed in KF6
+       @warning Broken implementation, do not use!
+     */
+-    KCALENDARCORE_DEPRECATED_VERSION(5, 64, "Do not use")
+     Recurrence &operator=(const Recurrence &r);
+-#else
+-    Recurrence &operator=(const Recurrence &r) = delete;
+-#endif
+ 
+     /** Return the start date/time of the recurrence (Time for all-day recurrences will be 0:00).
+      @return the current start/time of the recurrence. */
 diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
 index 9fb070092..38bd6ac0f 100644
 --- a/src/recurrencerule.cpp
