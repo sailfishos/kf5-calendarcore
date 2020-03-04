@@ -14,8 +14,8 @@ index 873eb2ca7..283415226 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -122,4 +122,15 @@ endif()
- 
- #install(FILES kcalendarcore.renamecategories kcalendarcore.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
+   )
+ endif()
  
 +# generate pkg-config file
 +set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
