@@ -27,7 +27,7 @@ index ecf1986ca..413cd71ee 100644
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.67.0  NO_MODULE)
+-find_package(ECM 5.75.0  NO_MODULE)
 +find_package(ECM 5.44.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
@@ -83,12 +83,12 @@ index b0630cdcd..92616cdf7 100644
 @@ -41,23 +41,24 @@ ecm_qt_declare_logging_category(kcalcore_LIB_SRCS
      HEADER kcalendarcore_debug.h
      IDENTIFIER KCALCORE_LOG
-     CATEGORY_NAME org.kde.pim.kcalcore
--    OLD_CATEGORY_NAMES log_kcalcore
--    DESCRIPTION "kcalcore (pim lib)"
+     CATEGORY_NAME kf.calendarcore
+-    OLD_CATEGORY_NAMES log_kcalcore org.kde.pim.kcalcore
+-    DESCRIPTION "KCalendarCore"
 -    EXPORT KCALENDARCORE
-+#    OLD_CATEGORY_NAMES log_kcalcore
-+#    DESCRIPTION "kcalcore (pim lib)"
++#    OLD_CATEGORY_NAMES log_kcalcore org.kde.pim.kcalcore
++#    DESCRIPTION "KCalendarCore"
 +#    EXPORT KCALENDARCORE
  )
  
@@ -220,7 +220,7 @@ index a685a534f..7ac18ed95 100644
  {
      // check for self assignment
 @@ -150,7 +149,6 @@ Recurrence &Recurrence::operator=(const Recurrence &recurrence)
-     *d = *recurrence.d;
+ QT_WARNING_POP
      return *this;
  }
 -#endif
