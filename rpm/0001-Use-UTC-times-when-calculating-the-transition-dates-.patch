@@ -1,4 +1,4 @@
-From 402d509b02197ae0d36224af6bbedd3b25bdede9 Mon Sep 17 00:00:00 2001
+From ef3122d9e20f5a1b9079c93c8314f282d5dc7736 Mon Sep 17 00:00:00 2001
 From: Christoph Lenggenhager <clenggenhager@gmail.com>
 Date: Wed, 10 Jun 2015 17:34:12 +0200
 Subject: [PATCH 1/3] Use UTC times when calculating the transition dates of
@@ -15,10 +15,10 @@ See https://github.com/mer-packages/kcalcore/pull/9 for discussion on this issue
  1 file changed, 8 insertions(+), 14 deletions(-)
 
 diff --git a/src/icaltimezones.cpp b/src/icaltimezones.cpp
-index c6d88918d..fb62f62b9 100644
+index 361988a16..f8ea6f86d 100644
 --- a/src/icaltimezones.cpp
 +++ b/src/icaltimezones.cpp
-@@ -631,7 +631,6 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
+@@ -617,7 +617,6 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
      }
  
      // Convert DTSTART to QDateTime, and from local time to UTC
@@ -26,7 +26,7 @@ index c6d88918d..fb62f62b9 100644
      dtstart.second -= prevOffset;
  #if defined(USE_ICAL_3)
      dtstart = icaltime_convert_to_zone(dtstart, icaltimezone_get_utc_timezone());
-@@ -692,21 +691,16 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
+@@ -678,21 +677,16 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
                  ICalFormat icf;
                  ICalFormatImpl impl(&icf);
                  impl.readRecurrence(icalproperty_get_rrule(p), &r);
@@ -57,5 +57,5 @@ index c6d88918d..fb62f62b9 100644
                  break;
              }
 -- 
-2.17.1
+2.28.0
 

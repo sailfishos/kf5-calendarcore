@@ -1,36 +1,26 @@
-From c4a696ad8c4b8d51f6b46638a5b83618f5e00e7a Mon Sep 17 00:00:00 2001
+From be90d546451837df25f944eed4f8f4e628598bbc Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
-Subject: [PATCH 1/2] Adjust for lower Qt versions.
+Subject: [PATCH 2/3] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                   |  6 +++---
+ CMakeLists.txt                   |  2 +-
  autotests/testmemorycalendar.cpp |  2 +-
  autotests/testrecurtodo.cpp      |  5 +++++
- src/CMakeLists.txt               | 35 ++++++++++++++++----------------
  src/calendar.cpp                 |  1 +
  src/icalformat.cpp               |  1 +
  src/icalformat_p.cpp             |  3 +++
  src/memorycalendar.cpp           |  4 ++--
  src/occurrenceiterator.cpp       |  1 +
- src/recurrence.cpp               |  2 --
- src/recurrence.h                 |  5 -----
- src/recurrencerule.cpp           | 32 +++++++++++++++++++++++++++++
+ src/recurrencerule.cpp           | 32 ++++++++++++++++++++++++++++++++
  src/utils_p.h                    |  8 ++++++++
- 13 files changed, 75 insertions(+), 30 deletions(-)
+ 10 files changed, 55 insertions(+), 4 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ecf1986ca..413cd71ee 100644
+index 74f453288..829fe7dd1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,19 +5,19 @@ project(KCalendarCore VERSION ${KF5_VERSION})
- 
- # ECM setup
- include(FeatureSummary)
--find_package(ECM 5.75.0  NO_MODULE)
-+find_package(ECM 5.44.0  NO_MODULE)
- set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
- feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
+@@ -11,7 +11,7 @@ feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKA
  
  set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
  
@@ -39,15 +29,8 @@ index ecf1986ca..413cd71ee 100644
  
  include(KDEInstallDirs)
  include(KDECMakeSettings)
- include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
- 
--include(ECMGenerateExportHeader)
-+include(GenerateExportHeader)
- include(ECMGenerateHeaders)
- include(ECMGeneratePriFile)
- 
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
-index 77241eb43..6a424b2f1 100644
+index 6a6910f5b..0b503f62f 100644
 --- a/autotests/testmemorycalendar.cpp
 +++ b/autotests/testmemorycalendar.cpp
 @@ -121,7 +121,7 @@ void MemoryCalendarTest::testIncidences()
@@ -60,10 +43,10 @@ index 77241eb43..6a424b2f1 100644
      QVERIFY(todo->locationIsRich());
      cal->close();
 diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
-index a9d439888..6bacabff1 100644
+index 9270c0c21..29204c830 100644
 --- a/autotests/testrecurtodo.cpp
 +++ b/autotests/testrecurtodo.cpp
-@@ -149,7 +149,12 @@ void RecurTodoTest::testRecurTodo_data()
+@@ -165,7 +165,12 @@ void RecurTodoTest::testRecurTodo_data()
      QTest::addColumn<QDateTime>("dtdue");
  
      // Can't use QDateTime::currentDateTimeUtc() due to milliseconds mismatching
@@ -76,66 +59,8 @@ index a9d439888..6bacabff1 100644
      const QDateTime tomorrow = today.addDays(1);
      const QDateTime invalid;
  
-diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index b0630cdcd..92616cdf7 100644
---- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt
-@@ -41,23 +41,24 @@ ecm_qt_declare_logging_category(kcalcore_LIB_SRCS
-     HEADER kcalendarcore_debug.h
-     IDENTIFIER KCALCORE_LOG
-     CATEGORY_NAME kf.calendarcore
--    OLD_CATEGORY_NAMES log_kcalcore org.kde.pim.kcalcore
--    DESCRIPTION "KCalendarCore"
--    EXPORT KCALENDARCORE
-+#    OLD_CATEGORY_NAMES log_kcalcore org.kde.pim.kcalcore
-+#    DESCRIPTION "KCalendarCore"
-+#    EXPORT KCALENDARCORE
- )
- 
- add_library(KF5CalendarCore ${kcalcore_LIB_SRCS})
- add_library(KF5::CalendarCore ALIAS KF5CalendarCore)
- 
--ecm_generate_export_header(KF5CalendarCore
--    BASE_NAME kcalendarcore
--    GROUP_BASE_NAME KF
--    VERSION ${KF5_VERSION}
--    DEPRECATED_BASE_VERSION 0
--    DEPRECATION_VERSIONS 5.64
--    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
--)
--
-+#ecm_generate_export_header(KF5CalendarCore
-+#    BASE_NAME kcalendarcore
-+#    GROUP_BASE_NAME KF
-+#    VERSION ${KF5_VERSION}
-+#    DEPRECATED_BASE_VERSION 0
-+#    DEPRECATION_VERSIONS 5.64
-+#    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
-+#)
-+generate_export_header(KF5CalendarCore
-+    BASE_NAME kcalendarcore)
- 
- # backward compatibility with the old name
- if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
-@@ -163,11 +164,11 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
-   )
- endif()
- 
--ecm_qt_install_logging_categories(
--    EXPORT KCALENDARCORE
--    FILE kcalendarcore.categories
--    DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
--)
-+#ecm_qt_install_logging_categories(
-+#    EXPORT KCALENDARCORE
-+#    FILE kcalendarcore.categories
-+#    DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
-+#)
- 
- ecm_generate_pri_file(BASE_NAME KCalendarCore LIB_NAME KF5CalendarCore DEPS "Core" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF5}/KCalendarCore/KCalendarCore)
- install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
 diff --git a/src/calendar.cpp b/src/calendar.cpp
-index 267031ec5..87489a677 100644
+index f81ba1783..f0d92bbcb 100644
 --- a/src/calendar.cpp
 +++ b/src/calendar.cpp
 @@ -27,6 +27,7 @@
@@ -147,7 +72,7 @@ index 267031ec5..87489a677 100644
  #include "kcalendarcore_debug.h"
  
 diff --git a/src/icalformat.cpp b/src/icalformat.cpp
-index 6ea563e9a..6593db302 100644
+index 4c31c3143..fe372ba2d 100644
 --- a/src/icalformat.cpp
 +++ b/src/icalformat.cpp
 @@ -22,6 +22,7 @@
@@ -159,7 +84,7 @@ index 6ea563e9a..6593db302 100644
  #include <QSaveFile>
  #include <QFile>
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index 62ab47db8..f1de95ac5 100644
+index 51ebda04a..8683816fc 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
 @@ -32,6 +32,7 @@
@@ -170,7 +95,7 @@ index 62ab47db8..f1de95ac5 100644
  
  #include "kcalendarcore_debug.h"
  
-@@ -2557,7 +2558,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -2556,7 +2557,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
      } //end of ICAL_X_PROPERTY
@@ -207,49 +132,6 @@ index 82d9964f9..76b352546 100644
  
  #include <QDate>
  
-diff --git a/src/recurrence.cpp b/src/recurrence.cpp
-index a685a534f..7ac18ed95 100644
---- a/src/recurrence.cpp
-+++ b/src/recurrence.cpp
-@@ -137,7 +137,6 @@ bool Recurrence::operator==(const Recurrence &recurrence) const
-     return *d == *recurrence.d;
- }
- 
--#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 64)
- Recurrence &Recurrence::operator=(const Recurrence &recurrence)
- {
-     // check for self assignment
-@@ -150,7 +149,6 @@ Recurrence &Recurrence::operator=(const Recurrence &recurrence)
- QT_WARNING_POP
-     return *this;
- }
--#endif
- 
- void Recurrence::addObserver(RecurrenceObserver *observer)
- {
-diff --git a/src/recurrence.h b/src/recurrence.h
-index 2d728c138..720a2f02b 100644
---- a/src/recurrence.h
-+++ b/src/recurrence.h
-@@ -133,18 +133,13 @@ public:
-         return !operator==(r);
-     }
- 
--#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 64)
-     /**
-       Assignment operator.
-       @param r the recurrence which will be assigned to this.
-       @deprecated Do not use, will be removed in KF6
-       @warning Broken implementation, do not use!
-     */
--    KCALENDARCORE_DEPRECATED_VERSION(5, 64, "Do not use")
-     Recurrence &operator=(const Recurrence &r);
--#else
--    Recurrence &operator=(const Recurrence &r) = delete;
--#endif
- 
-     /** Return the start date/time of the recurrence (Time for all-day recurrences will be 0:00).
-      @return the current start/time of the recurrence. */
 diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
 index cf009a6d9..5a70da143 100644
 --- a/src/recurrencerule.cpp
@@ -394,5 +276,5 @@ index c2ae0e3e0..b205877d3 100644
  
  #endif
 -- 
-2.17.1
+2.28.0
 
