@@ -1,6 +1,6 @@
 Name:       kf5-calendarcore
 Summary:    KDE calendar library
-Version:    5.75.0
+Version:    5.76.0
 Release:    1
 License:    LGPLv2+ and BSD
 URL:        https://invent.kde.org/frameworks/kcalendarcore
@@ -55,8 +55,10 @@ install KF5CalendarCore.pc %{pkg_config_dir}
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/KF5
-%{_datadir}/qt5
+%{_includedir}/KF5/KCalendarCore
+%{_includedir}/KF5/kcalcore_version.h
+%{_includedir}/KF5/kcalendarcore_version.h
+%{_datadir}/qt5/mkspecs/modules/qt_KCalendarCore.pri
 %{_libdir}/cmake/KF5CalendarCore
 %{_libdir}/libKF5CalendarCore.so
-%{_libdir}/pkgconfig
+%{_libdir}/pkgconfig/KF5CalendarCore.pc

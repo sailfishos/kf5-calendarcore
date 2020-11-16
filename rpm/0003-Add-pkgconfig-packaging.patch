@@ -1,7 +1,7 @@
-From 096260fda4c824e721588943edec228ec793bc82 Mon Sep 17 00:00:00 2001
+From 69905ba8c7b8454712bdb941f0b2658a01192fc3 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 13:30:00 +0200
-Subject: [PATCH 3/3] Add pkgconfig packaging.
+Subject: [PATCH] Add pkgconfig packaging.
 
 ---
  CMakeLists.txt        | 11 +++++++++++
@@ -10,7 +10,7 @@ Subject: [PATCH 3/3] Add pkgconfig packaging.
  create mode 100644 KF5CalendarCore.pc.in
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 829fe7dd1..aae2c5615 100644
+index 36b0aabf5..788534a77 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -120,4 +120,15 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)

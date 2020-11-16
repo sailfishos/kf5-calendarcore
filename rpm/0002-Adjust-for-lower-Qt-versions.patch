@@ -1,10 +1,10 @@
-From be90d546451837df25f944eed4f8f4e628598bbc Mon Sep 17 00:00:00 2001
+From c781f5a6014d7e04b1018da3d8a073a5afc846ff Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
-Subject: [PATCH 2/3] Adjust for lower Qt versions.
+Subject: [PATCH] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                   |  2 +-
+ CMakeLists.txt                   |  4 ++--
  autotests/testmemorycalendar.cpp |  2 +-
  autotests/testrecurtodo.cpp      |  5 +++++
  src/calendar.cpp                 |  1 +
@@ -14,13 +14,20 @@ Subject: [PATCH 2/3] Adjust for lower Qt versions.
  src/occurrenceiterator.cpp       |  1 +
  src/recurrencerule.cpp           | 32 ++++++++++++++++++++++++++++++++
  src/utils_p.h                    |  8 ++++++++
- 10 files changed, 55 insertions(+), 4 deletions(-)
+ 10 files changed, 56 insertions(+), 5 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 74f453288..829fe7dd1 100644
+index 8487320fb..36b0aabf5 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -11,7 +11,7 @@ feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKA
+@@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF5_VERSION})
+ 
+ # ECM setup
+ include(FeatureSummary)
+-find_package(ECM 5.76.0  NO_MODULE)
++find_package(ECM 5.75.0  NO_MODULE)
+ set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
+ feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
  
  set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
  
@@ -30,7 +37,7 @@ index 74f453288..829fe7dd1 100644
  include(KDEInstallDirs)
  include(KDECMakeSettings)
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
-index 6a6910f5b..0b503f62f 100644
+index b065a692c..e5f876fe3 100644
 --- a/autotests/testmemorycalendar.cpp
 +++ b/autotests/testmemorycalendar.cpp
 @@ -121,7 +121,7 @@ void MemoryCalendarTest::testIncidences()
@@ -106,7 +113,7 @@ index 51ebda04a..8683816fc 100644
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
 diff --git a/src/memorycalendar.cpp b/src/memorycalendar.cpp
-index 7b52f502d..51cfac413 100644
+index 78e3665a9..590533b1a 100644
 --- a/src/memorycalendar.cpp
 +++ b/src/memorycalendar.cpp
 @@ -209,8 +209,8 @@ bool MemoryCalendar::deleteIncidence(const Incidence::Ptr &incidence)
@@ -133,7 +140,7 @@ index 82d9964f9..76b352546 100644
  #include <QDate>
  
 diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
-index cf009a6d9..5a70da143 100644
+index cd4afc4a0..99e416fd6 100644
 --- a/src/recurrencerule.cpp
 +++ b/src/recurrencerule.cpp
 @@ -655,19 +655,29 @@ bool Constraint::readDateTime(const QDateTime &dt, RecurrenceRule::PeriodType ty
