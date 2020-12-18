@@ -1,0 +1,44 @@
+From cdc65b0c4fd5e76e97a5e732b4bd2e7f953c39a2 Mon Sep 17 00:00:00 2001
+From: Bea Lam <bea.lam@jolla.com>
+Date: Thu, 17 Dec 2020 16:16:15 +1000
+Subject: [PATCH] Avoid forIncidences() template in deleteIncidenceInstances()
+
+This causes the incidences list to be modified by deleteIncidence()
+during the loop, which can cause a crash.
+---
+ src/memorycalendar.cpp | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/src/memorycalendar.cpp b/src/memorycalendar.cpp
+index 78e3665a9..ef1546c4f 100644
+--- a/src/memorycalendar.cpp
++++ b/src/memorycalendar.cpp
+@@ -240,16 +240,19 @@ bool MemoryCalendar::deleteIncidence(const Incidence::Ptr &incidence)
+ 
+ bool MemoryCalendar::deleteIncidenceInstances(const Incidence::Ptr &incidence)
+ {
+-    d->forIncidences<Incidence>(d->mIncidences[incidence->type()], incidence->uid(), [this](const Incidence::Ptr &incidence) {
+-        if (incidence->hasRecurrenceId()) {
++    auto instances = d->mIncidences[incidence->type()];
++    auto end = instances.cend();
++    for (auto it = instances.constFind(incidence->uid()); it != end && it.key() == incidence->uid(); ++it) {
++        if (it.value()->hasRecurrenceId()) {
+             qCDebug(KCALCORE_LOG) << "deleting child"
+-                                  << ", type=" << int(incidence->type())
+-                                  << ", uid=" << incidence->uid()
++                                  << ", type=" << int(it.value()->type())
++                                  << ", uid=" << it.value()->uid()
+ //                   << ", start=" << i->dtStart()
+                                   << " from calendar";
+-            deleteIncidence(incidence);
++
++            deleteIncidence(it.value());
+         }
+-    });
++    }
+ 
+     return true;
+ }
+-- 
+2.24.3 (Apple Git-128)
+
