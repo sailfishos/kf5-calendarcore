@@ -23,7 +23,7 @@ Patch4: 0004-Avoid-forIncidences-template-in-deleteIncidenceInsta.patch
 KDE Framework calendar core library
 
 %package devel
-Summary:    Development files for kcalcore
+Summary:    Development files for KF5CalendarCore
 Requires:   %{name} = %{version}-%{release}
 
 %description devel
