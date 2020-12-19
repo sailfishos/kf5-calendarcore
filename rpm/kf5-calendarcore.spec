@@ -38,13 +38,9 @@ if [ ! -d build ] ; then mkdir build ; fi ; cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 %make_build
 
-%define pkg_config_dir %{buildroot}/usr/lib/pkgconfig/
-
 %install
 cd build
 make install DESTDIR=%{buildroot}
-mkdir -p %{pkg_config_dir}
-install KF5CalendarCore.pc %{pkg_config_dir}
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig

@@ -4,16 +4,16 @@ Date: Tue, 14 May 2019 13:30:00 +0200
 Subject: [PATCH] Add pkgconfig packaging.
 
 ---
- CMakeLists.txt        | 11 +++++++++++
+ CMakeLists.txt        | 12 ++++++++++++
  KF5CalendarCore.pc.in | 12 ++++++++++++
- 2 files changed, 23 insertions(+)
+ 2 files changed, 24 insertions(+)
  create mode 100644 KF5CalendarCore.pc.in
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 36b0aabf5..788534a77 100644
+index 76d7ad7d9..bd93b4788 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -120,4 +120,15 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
+@@ -118,4 +118,16 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
    )
  endif()
  
@@ -27,6 +27,7 @@ index 36b0aabf5..788534a77 100644
 +endforeach()
 +
 +CONFIGURE_FILE("KF5CalendarCore.pc.in" "KF5CalendarCore.pc" @ONLY)
++install(FILES ${CMAKE_CURRENT_BINARY_DIR}/KF5CalendarCore.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 +
  feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 diff --git a/KF5CalendarCore.pc.in b/KF5CalendarCore.pc.in
