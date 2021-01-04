@@ -1,6 +1,6 @@
 Name:       kf5-calendarcore
 Summary:    KDE calendar library
-Version:    5.77.0
+Version:    5.78.0
 Release:    1
 License:    LGPLv2+ and BSD
 URL:        https://invent.kde.org/frameworks/kcalendarcore
@@ -17,7 +17,6 @@ BuildRequires:  extra-cmake-modules >= 5.75.0
 Patch1: 0001-Use-UTC-times-when-calculating-the-transition-dates-.patch
 Patch2: 0002-Adjust-for-lower-Qt-versions.patch
 Patch3: 0003-Add-pkgconfig-packaging.patch
-Patch4: 0004-Avoid-forIncidences-template-in-deleteIncidenceInsta.patch
 
 %description
 KDE Framework calendar core library
