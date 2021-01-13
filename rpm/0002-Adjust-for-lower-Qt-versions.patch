@@ -1,41 +1,104 @@
-From c781f5a6014d7e04b1018da3d8a073a5afc846ff Mon Sep 17 00:00:00 2001
+From 54c81cb665e5c30238e2ca36bf69b8fc1ac561d0 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                   |  4 ++--
- autotests/testmemorycalendar.cpp |  2 +-
- autotests/testrecurtodo.cpp      |  5 +++++
- src/calendar.cpp                 |  1 +
- src/icalformat.cpp               |  1 +
- src/icalformat_p.cpp             |  3 +++
- src/memorycalendar.cpp           |  4 ++--
- src/occurrenceiterator.cpp       |  1 +
- src/recurrencerule.cpp           | 32 ++++++++++++++++++++++++++++++++
- src/utils_p.h                    |  8 ++++++++
- 10 files changed, 56 insertions(+), 5 deletions(-)
+ CMakeLists.txt                      |  4 ++--
+ autotests/testdateserialization.cpp |  8 ++++++++
+ autotests/testfreebusyperiod.cpp    |  4 ++++
+ autotests/testicalformat.cpp        |  4 ++++
+ autotests/testmemorycalendar.cpp    |  2 +-
+ autotests/testrecurtodo.cpp         |  5 +++++
+ autotests/testtimesininterval.cpp   | 12 +++++++++++
+ src/calendar.cpp                    |  1 +
+ src/icalformat.cpp                  |  1 +
+ src/icalformat_p.cpp                |  3 +++
+ src/occurrenceiterator.cpp          |  1 +
+ src/recurrencerule.cpp              | 32 +++++++++++++++++++++++++++++
+ src/utils_p.h                       |  8 ++++++++
+ 13 files changed, 82 insertions(+), 3 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8487320fb..36b0aabf5 100644
+index 53d1c7754..2776c8430 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF5_VERSION})
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.77.0  NO_MODULE)
+-find_package(ECM 5.78.0  NO_MODULE)
 +find_package(ECM 5.75.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
  
  set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
  
--set(REQUIRED_QT_VERSION 5.13.0)
+-set(REQUIRED_QT_VERSION 5.14.0)
 +set(REQUIRED_QT_VERSION 5.6.0)
  
  include(KDEInstallDirs)
  include(KDECMakeSettings)
+diff --git a/autotests/testdateserialization.cpp b/autotests/testdateserialization.cpp
+index f7cd0a5ca..3ceea1a8d 100644
+--- a/autotests/testdateserialization.cpp
++++ b/autotests/testdateserialization.cpp
+@@ -20,7 +20,11 @@ using namespace KCalendarCore;
+ // See bug 345498.
+ void TestDateSerialization::testNewRecurringTodo()
+ {
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     QDateTime startDate = QDate(2015, 3, 24).startOfDay();
++#else
++    QDateTime startDate { QDate(2015, 3, 24) };
++#endif
+     QDateTime dueDate   { startDate.addDays(1) };
+ 
+     Todo::Ptr todo(new Todo);
+@@ -51,7 +55,11 @@ void TestDateSerialization::testNewRecurringTodo()
+ // See bug 345565.
+ void TestDateSerialization::testTodoCompletedOnce()
+ {
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     QDateTime startDate = QDate::currentDate().startOfDay();
++#else
++    QDateTime startDate { QDate::currentDate() };
++#endif
+     QDateTime dueDate   { startDate.addDays(1) };
+ 
+     Todo::Ptr todo(new Todo);
+diff --git a/autotests/testfreebusyperiod.cpp b/autotests/testfreebusyperiod.cpp
+index 118838b33..b686efb9c 100644
+--- a/autotests/testfreebusyperiod.cpp
++++ b/autotests/testfreebusyperiod.cpp
+@@ -84,7 +84,11 @@ void FreeBusyPeriodTest::testDataStreamOut()
+ 
+ void FreeBusyPeriodTest::testDataStreamIn()
+ {
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     const QDateTime p1DateTime = QDate(2006, 8, 30).startOfDay();
++#else
++    const QDateTime p1DateTime(QDate(2006, 8, 30));
++#endif
+     const Duration duration(24 * 60 * 60);
+     FreeBusyPeriod p1(p1DateTime, duration);
+     p1.setSummary(QStringLiteral("I can haz summary?"));
+diff --git a/autotests/testicalformat.cpp b/autotests/testicalformat.cpp
+index ee5eeb9dc..01a590aed 100644
+--- a/autotests/testicalformat.cpp
++++ b/autotests/testicalformat.cpp
+@@ -217,7 +217,11 @@ void ICalFormatTest::testAlarm()
+     ICalFormat format;
+ 
+     Event::Ptr event(new Event);
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     event->setDtStart(QDate(2017, 03, 24).startOfDay());
++#else
++    event->setDtStart(QDateTime(QDate(2017, 03, 24)));
++#endif
+     Alarm::Ptr alarm = event->newAlarm();
+     alarm->setType(Alarm::Display);
+     alarm->setStartOffset(Duration(0));
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
 index b065a692c..e5f876fe3 100644
 --- a/autotests/testmemorycalendar.cpp
@@ -66,8 +129,48 @@ index 9270c0c21..29204c830 100644
      const QDateTime tomorrow = today.addDays(1);
      const QDateTime invalid;
  
+diff --git a/autotests/testtimesininterval.cpp b/autotests/testtimesininterval.cpp
+index d7e4e9a85..d426e228a 100644
+--- a/autotests/testtimesininterval.cpp
++++ b/autotests/testtimesininterval.cpp
+@@ -204,7 +204,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
+                           : QTimeZone(QByteArray("America/Toronto")));
+     Event event;
+     event.setAllDay(true);
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     event.setDtStart(QDate(2019, 10, 11).startOfDay());
++#else
++    event.setDtStart(QDateTime(QDate(2019, 10, 11)));
++#endif
+ 
+     RecurrenceRule * const rule = new RecurrenceRule();
+     rule->setRecurrenceType(RecurrenceRule::rDaily);
+@@ -223,7 +227,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
+     // A simple date, will apply.
+     recurrence->addExDate(QDate(2019, 10, 14));
+     // A date only local time, will apply.
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+     recurrence->addExDateTime(QDate(2019, 10, 15).startOfDay());
++#else
++    recurrence->addExDateTime(QDateTime(QDate(2019, 10, 15)));
++#endif
+     // A date time starting at 00:00 in another zone, will not apply.
+     recurrence->addExDateTime(QDateTime(QDate(2019, 10, 17), QTime(), anotherZone));
+     // A date time starting at 00:00 in the system time zone, will apply.
+@@ -238,7 +246,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
+     // nor either of the exception date times.
+     const QList<int> expectedDays { 11, 16, 17, 18, 21, 22, 23, 25 };
+     for (int day : expectedDays) {
++#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+         QVERIFY(timesInInterval.contains(QDate(2019, 10, day).startOfDay()));
++#else
++        QVERIFY(timesInInterval.contains(QDateTime(QDate(2019, 10, day))));
++#endif
+     }
+     QCOMPARE(timesInInterval.size(), expectedDays.size());
+ }
 diff --git a/src/calendar.cpp b/src/calendar.cpp
-index f81ba1783..f0d92bbcb 100644
+index c8702d8c7..74866f1d4 100644
 --- a/src/calendar.cpp
 +++ b/src/calendar.cpp
 @@ -27,6 +27,7 @@
@@ -91,7 +194,7 @@ index 4c31c3143..fe372ba2d 100644
  #include <QSaveFile>
  #include <QFile>
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index 51ebda04a..8683816fc 100644
+index 2dee76f9f..4ac7b0553 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
 @@ -32,6 +32,7 @@
@@ -102,7 +205,7 @@ index 51ebda04a..8683816fc 100644
  
  #include "kcalendarcore_debug.h"
  
-@@ -2556,7 +2557,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -2614,7 +2615,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
      } //end of ICAL_X_PROPERTY
@@ -112,21 +215,6 @@ index 51ebda04a..8683816fc 100644
      default:
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
-diff --git a/src/memorycalendar.cpp b/src/memorycalendar.cpp
-index 78e3665a9..590533b1a 100644
---- a/src/memorycalendar.cpp
-+++ b/src/memorycalendar.cpp
-@@ -209,8 +209,8 @@ bool MemoryCalendar::deleteIncidence(const Incidence::Ptr &incidence)
-     removeRelations(incidence);
-     const Incidence::IncidenceType type = incidence->type();
-     const QString uid = incidence->uid();
--    auto incidenceIt = d->mIncidences[type].constFind(uid);
--    if (incidenceIt != d->mIncidences[type].cend()) {
-+    auto incidenceIt = d->mIncidences[type].find(uid);
-+    if (incidenceIt != d->mIncidences[type].end()) {
-         // Notify while the incidence is still available,
-         // this is necessary so korganizer still has time to query for exceptions
-         notifyIncidenceAboutToBeDeleted(incidence);
 diff --git a/src/occurrenceiterator.cpp b/src/occurrenceiterator.cpp
 index 82d9964f9..76b352546 100644
 --- a/src/occurrenceiterator.cpp
@@ -283,5 +371,5 @@ index c2ae0e3e0..b205877d3 100644
  
  #endif
 -- 
-2.28.0
+2.29.2
 
