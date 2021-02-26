@@ -1,4 +1,4 @@
-From 1485372ddd6c8ce0ea76f2f0716973c5315cc84d Mon Sep 17 00:00:00 2001
+From 0162239b712a44d0c3bc6e1bde75d0a5800ffb30 Mon Sep 17 00:00:00 2001
 From: Christoph Lenggenhager <clenggenhager@gmail.com>
 Date: Wed, 10 Jun 2015 17:34:12 +0200
 Subject: [PATCH] Use UTC times when calculating the transition dates of
@@ -57,5 +57,5 @@ index 361988a16..f8ea6f86d 100644
                  break;
              }
 -- 
-2.28.0
+2.29.2
 
