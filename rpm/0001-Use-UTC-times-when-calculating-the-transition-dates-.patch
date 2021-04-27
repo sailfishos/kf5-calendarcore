@@ -1,4 +1,4 @@
-From 0162239b712a44d0c3bc6e1bde75d0a5800ffb30 Mon Sep 17 00:00:00 2001
+From acf43cd828602fa03090e18852eb2a137118e960 Mon Sep 17 00:00:00 2001
 From: Christoph Lenggenhager <clenggenhager@gmail.com>
 Date: Wed, 10 Jun 2015 17:34:12 +0200
 Subject: [PATCH] Use UTC times when calculating the transition dates of
@@ -15,18 +15,18 @@ See https://github.com/mer-packages/kcalcore/pull/9 for discussion on this issue
  1 file changed, 8 insertions(+), 14 deletions(-)
 
 diff --git a/src/icaltimezones.cpp b/src/icaltimezones.cpp
-index 361988a16..f8ea6f86d 100644
+index 811a5fbc8..c5efb8a17 100644
 --- a/src/icaltimezones.cpp
 +++ b/src/icaltimezones.cpp
-@@ -617,7 +617,6 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
+@@ -589,7 +589,6 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
      }
  
      // Convert DTSTART to QDateTime, and from local time to UTC
--    const QDateTime localStart = toQDateTime(dtstart);     // local time
+-    const QDateTime localStart = toQDateTime(dtstart); // local time
      dtstart.second -= prevOffset;
  #if defined(USE_ICAL_3)
      dtstart = icaltime_convert_to_zone(dtstart, icaltimezone_get_utc_timezone());
-@@ -678,21 +677,16 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
+@@ -649,21 +648,16 @@ bool ICalTimeZoneParser::parsePhase(icalcomponent *c, bool daylight, ICalTimeZon
                  ICalFormat icf;
                  ICalFormatImpl impl(&icf);
                  impl.readRecurrence(icalproperty_get_rrule(p), &r);
@@ -48,7 +48,7 @@ index 361988a16..f8ea6f86d 100644
                  }
 -                const auto dts = r.timesInInterval(localStart, maxTime);
 +                const auto dts = r.timesInInterval(utcStart, maxTime);
-                 for (int i = 0, end = dts.count();  i < end;  ++i) {
+                 for (int i = 0, end = dts.count(); i < end; ++i) {
 -                    QDateTime utc = dts[i];
 -                    utc.setTimeSpec(Qt::UTC);
 -                    phase.transitions += utc.addSecs(-prevOffset);
@@ -57,5 +57,5 @@ index 361988a16..f8ea6f86d 100644
                  break;
              }
 -- 
-2.29.2
+2.30.2
 
