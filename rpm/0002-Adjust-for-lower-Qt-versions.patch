@@ -1,13 +1,13 @@
-From b74f1213e823d8d3389a0b22bebbc1b55f8183a5 Mon Sep 17 00:00:00 2001
+From 8a05446d41414b76d27719e31bf6c8119e935c24 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                      |  4 ++--
+ CMakeLists.txt                      |  7 ++-----
  autotests/testdateserialization.cpp |  8 ++++++++
  autotests/testfreebusyperiod.cpp    |  4 ++++
- autotests/testicalformat.cpp        |  4 ++++
+ autotests/testicalformat.cpp        |  6 +++++-
  autotests/testmemorycalendar.cpp    |  2 +-
  autotests/testrecurtodo.cpp         |  5 +++++
  autotests/testtimesininterval.cpp   | 12 +++++++++++
@@ -17,30 +17,40 @@ Subject: [PATCH] Adjust for lower Qt versions.
  src/occurrenceiterator.cpp          |  1 +
  src/recurrencerule.cpp              | 32 +++++++++++++++++++++++++++++
  src/utils_p.h                       |  8 ++++++++
- 13 files changed, 83 insertions(+), 4 deletions(-)
+ 13 files changed, 84 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 23e72e650..1c27dd317 100644
+index fff3c1794..e293fa4cd 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF_VERSION})
+@@ -5,17 +5,16 @@ project(KCalendarCore VERSION ${KF_VERSION})
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.79.0  NO_MODULE)
+-find_package(ECM 5.81.0  NO_MODULE)
 +find_package(ECM 5.75.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
  
  set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
  
--set(REQUIRED_QT_VERSION 5.14.0)
+-set(REQUIRED_QT_VERSION 5.15.0)
 +set(REQUIRED_QT_VERSION 5.6.0)
  
  include(KDEInstallDirs)
  include(KDECMakeSettings)
+-include(KDEGitCommitHooks)
+ include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
+ 
+ include(ECMGenerateExportHeader)
+@@ -120,5 +119,3 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
+ endif()
+ 
+ feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+-
+-kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
 diff --git a/autotests/testdateserialization.cpp b/autotests/testdateserialization.cpp
-index f7cd0a5ca..3ceea1a8d 100644
+index c64314ec1..f8110d24e 100644
 --- a/autotests/testdateserialization.cpp
 +++ b/autotests/testdateserialization.cpp
 @@ -20,7 +20,11 @@ using namespace KCalendarCore;
@@ -52,7 +62,7 @@ index f7cd0a5ca..3ceea1a8d 100644
 +#else
 +    QDateTime startDate { QDate(2015, 3, 24) };
 +#endif
-     QDateTime dueDate   { startDate.addDays(1) };
+     QDateTime dueDate{startDate.addDays(1)};
  
      Todo::Ptr todo(new Todo);
 @@ -51,7 +55,11 @@ void TestDateSerialization::testNewRecurringTodo()
@@ -64,7 +74,7 @@ index f7cd0a5ca..3ceea1a8d 100644
 +#else
 +    QDateTime startDate { QDate::currentDate() };
 +#endif
-     QDateTime dueDate   { startDate.addDays(1) };
+     QDateTime dueDate{startDate.addDays(1)};
  
      Todo::Ptr todo(new Todo);
 diff --git a/autotests/testfreebusyperiod.cpp b/autotests/testfreebusyperiod.cpp
@@ -84,10 +94,10 @@ index 118838b33..b686efb9c 100644
      FreeBusyPeriod p1(p1DateTime, duration);
      p1.setSummary(QStringLiteral("I can haz summary?"));
 diff --git a/autotests/testicalformat.cpp b/autotests/testicalformat.cpp
-index ee5eeb9dc..01a590aed 100644
+index 522e3824d..00a0d96a7 100644
 --- a/autotests/testicalformat.cpp
 +++ b/autotests/testicalformat.cpp
-@@ -217,7 +217,11 @@ void ICalFormatTest::testAlarm()
+@@ -208,7 +208,11 @@ void ICalFormatTest::testAlarm()
      ICalFormat format;
  
      Event::Ptr event(new Event);
@@ -99,8 +109,17 @@ index ee5eeb9dc..01a590aed 100644
      Alarm::Ptr alarm = event->newAlarm();
      alarm->setType(Alarm::Display);
      alarm->setStartOffset(Duration(0));
+@@ -252,7 +256,7 @@ void ICalFormatTest::testDateTimeSerialization()
+     const QList<QByteArray> lines = output.split('\n');
+     for (const QByteArray &line: lines) {
+         if (line.startsWith(QByteArray("DTSTART"))) {
+-            QCOMPARE(line.chopped(1), dtStartData);
++            QCOMPARE(line.left(line.size() - 1), dtStartData);
+             break;
+         }
+     }
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
-index fbe96258a..a708ba2a5 100644
+index b5e73a861..ccc99fb72 100644
 --- a/autotests/testmemorycalendar.cpp
 +++ b/autotests/testmemorycalendar.cpp
 @@ -150,7 +150,7 @@ void MemoryCalendarTest::testIncidences()
@@ -113,10 +132,10 @@ index fbe96258a..a708ba2a5 100644
      QVERIFY(todo->locationIsRich());
      cal->close();
 diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
-index 9270c0c21..29204c830 100644
+index a6239b910..a743ec62f 100644
 --- a/autotests/testrecurtodo.cpp
 +++ b/autotests/testrecurtodo.cpp
-@@ -165,7 +165,12 @@ void RecurTodoTest::testRecurTodo_data()
+@@ -163,7 +163,12 @@ void RecurTodoTest::testRecurTodo_data()
      QTest::addColumn<QDateTime>("dtdue");
  
      // Can't use QDateTime::currentDateTimeUtc() due to milliseconds mismatching
@@ -130,11 +149,11 @@ index 9270c0c21..29204c830 100644
      const QDateTime invalid;
  
 diff --git a/autotests/testtimesininterval.cpp b/autotests/testtimesininterval.cpp
-index d7e4e9a85..d426e228a 100644
+index 478abd60c..a76343e53 100644
 --- a/autotests/testtimesininterval.cpp
 +++ b/autotests/testtimesininterval.cpp
-@@ -204,7 +204,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
-                           : QTimeZone(QByteArray("America/Toronto")));
+@@ -193,7 +193,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
+                                                                             : QTimeZone(QByteArray("America/Toronto")));
      Event event;
      event.setAllDay(true);
 +#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
@@ -143,9 +162,9 @@ index d7e4e9a85..d426e228a 100644
 +    event.setDtStart(QDateTime(QDate(2019, 10, 11)));
 +#endif
  
-     RecurrenceRule * const rule = new RecurrenceRule();
+     RecurrenceRule *const rule = new RecurrenceRule();
      rule->setRecurrenceType(RecurrenceRule::rDaily);
-@@ -223,7 +227,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
+@@ -211,7 +215,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
      // A simple date, will apply.
      recurrence->addExDate(QDate(2019, 10, 14));
      // A date only local time, will apply.
@@ -157,9 +176,9 @@ index d7e4e9a85..d426e228a 100644
      // A date time starting at 00:00 in another zone, will not apply.
      recurrence->addExDateTime(QDateTime(QDate(2019, 10, 17), QTime(), anotherZone));
      // A date time starting at 00:00 in the system time zone, will apply.
-@@ -238,7 +246,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
+@@ -225,7 +233,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
      // nor either of the exception date times.
-     const QList<int> expectedDays { 11, 16, 17, 18, 21, 22, 23, 25 };
+     const QList<int> expectedDays{11, 16, 17, 18, 21, 22, 23, 25};
      for (int day : expectedDays) {
 +#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
          QVERIFY(timesInInterval.contains(QDate(2019, 10, day).startOfDay()));
@@ -170,7 +189,7 @@ index d7e4e9a85..d426e228a 100644
      QCOMPARE(timesInInterval.size(), expectedDays.size());
  }
 diff --git a/src/calendar.cpp b/src/calendar.cpp
-index d8612e01e..03ad52938 100644
+index 97be12474..1af55d358 100644
 --- a/src/calendar.cpp
 +++ b/src/calendar.cpp
 @@ -27,6 +27,7 @@
@@ -182,19 +201,19 @@ index d8612e01e..03ad52938 100644
  #include "kcalendarcore_debug.h"
  
 diff --git a/src/icalformat.cpp b/src/icalformat.cpp
-index 4c31c3143..fe372ba2d 100644
+index eda32db12..c4fa59a23 100644
 --- a/src/icalformat.cpp
 +++ b/src/icalformat.cpp
 @@ -22,6 +22,7 @@
- #include "memorycalendar.h"
+ #include "icaltimezones_p.h"
  #include "kcalendarcore_debug.h"
- #include "calendar_p.h"
+ #include "memorycalendar.h"
 +#include "utils_p.h"
  
- #include <QSaveFile>
  #include <QFile>
+ #include <QSaveFile>
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index 97e14670d..4aa340b9d 100644
+index 2e0490257..1317c6074 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
 @@ -32,6 +32,7 @@
@@ -205,7 +224,7 @@ index 97e14670d..4aa340b9d 100644
  
  #include "kcalendarcore_debug.h"
  
-@@ -1820,7 +1821,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
+@@ -1758,7 +1759,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
              // We can't change that -- in order to retain backwards compatibility.
              text = icalproperty_get_categories(p);
              const QString val = QString::fromUtf8(text);
@@ -214,18 +233,18 @@ index 97e14670d..4aa340b9d 100644
              for (const QString &cat : lstVal) {
                  // ensure no duplicates
                  if (!categories.contains(cat)) {
-@@ -2610,7 +2611,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -2522,7 +2523,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
-     } //end of ICAL_X_PROPERTY
+     } // end of ICAL_X_PROPERTY
 +#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-     Q_FALLTHROUGH();
+         Q_FALLTHROUGH();
 +#endif
      default:
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
 diff --git a/src/occurrenceiterator.cpp b/src/occurrenceiterator.cpp
-index 82d9964f9..76b352546 100644
+index 3d8bf3580..e797cb206 100644
 --- a/src/occurrenceiterator.cpp
 +++ b/src/occurrenceiterator.cpp
 @@ -19,6 +19,7 @@
@@ -237,10 +256,10 @@ index 82d9964f9..76b352546 100644
  #include <QDate>
  
 diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
-index cd4afc4a0..99e416fd6 100644
+index 7972d6105..ac18ea848 100644
 --- a/src/recurrencerule.cpp
 +++ b/src/recurrencerule.cpp
-@@ -655,19 +655,29 @@ bool Constraint::readDateTime(const QDateTime &dt, RecurrenceRule::PeriodType ty
+@@ -648,19 +648,29 @@ bool Constraint::readDateTime(const QDateTime &dt, RecurrenceRule::PeriodType ty
      // Really fall through! Only weekly needs to be treated differently!
      case RecurrenceRule::rSecondly:
          second = dt.time().second();
@@ -270,16 +289,15 @@ index cd4afc4a0..99e416fd6 100644
      case RecurrenceRule::rYearly:
          year = dt.date().year();
          break;
-@@ -1262,29 +1272,39 @@ void RecurrenceRule::Private::buildConstraints()
-                 mByYearDays.isEmpty() && mByMonths.isEmpty()) {
+@@ -1244,28 +1254,38 @@ void RecurrenceRule::Private::buildConstraints()
+         if (mByDays.isEmpty() && mByWeekNumbers.isEmpty() && mByYearDays.isEmpty() && mByMonths.isEmpty()) {
              fixConstraint(setMonth, mDateStart.date().month());
          }
 +#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
          Q_FALLTHROUGH();
 +#endif
      case rMonthly:
-         if (mByDays.isEmpty() && mByWeekNumbers.isEmpty() &&
-                 mByYearDays.isEmpty() && mByMonthDays.isEmpty()) {
+         if (mByDays.isEmpty() && mByWeekNumbers.isEmpty() && mByYearDays.isEmpty() && mByMonthDays.isEmpty()) {
              fixConstraint(setDay, mDateStart.date().day());
          }
 +#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
@@ -310,7 +328,7 @@ index cd4afc4a0..99e416fd6 100644
      case rSecondly:
      default:
          break;
-@@ -1845,10 +1865,14 @@ Constraint RecurrenceRule::Private::getPreviousValidDateInterval(const QDateTime
+@@ -1816,10 +1836,14 @@ Constraint RecurrenceRule::Private::getPreviousValidDateInterval(const QDateTime
      // by the factor 60 and 60*60! Same for weekly and daily (factor 7)
      case rHourly:
          modifier *= 60;
@@ -325,7 +343,7 @@ index cd4afc4a0..99e416fd6 100644
      case rSecondly:
          periods = static_cast<int>(start.secsTo(toDate) / modifier);
          // round it down to the next lower multiple of frequency:
-@@ -1861,7 +1885,9 @@ Constraint RecurrenceRule::Private::getPreviousValidDateInterval(const QDateTime
+@@ -1832,7 +1856,9 @@ Constraint RecurrenceRule::Private::getPreviousValidDateInterval(const QDateTime
          toDate = toDate.addDays(-(7 + toDate.date().dayOfWeek() - mWeekStart) % 7);
          start = start.addDays(-(7 + start.date().dayOfWeek() - mWeekStart) % 7);
          modifier *= 7;
@@ -335,7 +353,7 @@ index cd4afc4a0..99e416fd6 100644
      case rDaily:
          periods = start.daysTo(toDate) / modifier;
          // round it down to the next lower multiple of frequency:
-@@ -1920,10 +1946,14 @@ Constraint RecurrenceRule::Private::getNextValidDateInterval(const QDateTime &dt
+@@ -1889,10 +1915,14 @@ Constraint RecurrenceRule::Private::getNextValidDateInterval(const QDateTime &dt
      // by the factor 60 and 60*60! Same for weekly and daily (factor 7)
      case rHourly:
          modifier *= 60;
@@ -350,7 +368,7 @@ index cd4afc4a0..99e416fd6 100644
      case rSecondly:
          periods = static_cast<int>(start.secsTo(toDate) / modifier);
          periods = qMax(0L, periods);
-@@ -1937,7 +1967,9 @@ Constraint RecurrenceRule::Private::getNextValidDateInterval(const QDateTime &dt
+@@ -1906,7 +1936,9 @@ Constraint RecurrenceRule::Private::getNextValidDateInterval(const QDateTime &dt
          toDate = toDate.addDays(-(7 + toDate.date().dayOfWeek() - mWeekStart) % 7);
          start = start.addDays(-(7 + start.date().dayOfWeek() - mWeekStart) % 7);
          modifier *= 7;
@@ -361,7 +379,7 @@ index cd4afc4a0..99e416fd6 100644
          periods = start.daysTo(toDate) / modifier;
          periods = qMax(0L, periods);
 diff --git a/src/utils_p.h b/src/utils_p.h
-index c2ae0e3e0..b205877d3 100644
+index ac52d65d2..3c2d1b27c 100644
 --- a/src/utils_p.h
 +++ b/src/utils_p.h
 @@ -29,6 +29,14 @@ void deserializeQDateTimeList(QDataStream &in, QList<QDateTime> &list);
@@ -380,5 +398,5 @@ index c2ae0e3e0..b205877d3 100644
  
  #endif
 -- 
-2.29.2
+2.30.2
 
