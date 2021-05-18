@@ -1,4 +1,4 @@
-From 8a05446d41414b76d27719e31bf6c8119e935c24 Mon Sep 17 00:00:00 2001
+From c7f6e501f8c2cfc333473448449b18352f49375e Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH] Adjust for lower Qt versions.
@@ -20,7 +20,7 @@ Subject: [PATCH] Adjust for lower Qt versions.
  13 files changed, 84 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index fff3c1794..e293fa4cd 100644
+index e733ee31a..8622f1ad3 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,17 +5,16 @@ project(KCalendarCore VERSION ${KF_VERSION})
@@ -43,7 +43,7 @@ index fff3c1794..e293fa4cd 100644
  include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
  
  include(ECMGenerateExportHeader)
-@@ -120,5 +119,3 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
+@@ -118,5 +117,3 @@ if (NOT KCALENDARCORE_NO_DEPRECATED_NAMESPACE)
  endif()
  
  feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
@@ -94,10 +94,10 @@ index 118838b33..b686efb9c 100644
      FreeBusyPeriod p1(p1DateTime, duration);
      p1.setSummary(QStringLiteral("I can haz summary?"));
 diff --git a/autotests/testicalformat.cpp b/autotests/testicalformat.cpp
-index 522e3824d..00a0d96a7 100644
+index a8adf2e13..b7a076de4 100644
 --- a/autotests/testicalformat.cpp
 +++ b/autotests/testicalformat.cpp
-@@ -208,7 +208,11 @@ void ICalFormatTest::testAlarm()
+@@ -204,7 +204,11 @@ void ICalFormatTest::testAlarm()
      ICalFormat format;
  
      Event::Ptr event(new Event);
@@ -109,7 +109,7 @@ index 522e3824d..00a0d96a7 100644
      Alarm::Ptr alarm = event->newAlarm();
      alarm->setType(Alarm::Display);
      alarm->setStartOffset(Duration(0));
-@@ -252,7 +256,7 @@ void ICalFormatTest::testDateTimeSerialization()
+@@ -248,7 +252,7 @@ void ICalFormatTest::testDateTimeSerialization()
      const QList<QByteArray> lines = output.split('\n');
      for (const QByteArray &line: lines) {
          if (line.startsWith(QByteArray("DTSTART"))) {
@@ -132,7 +132,7 @@ index b5e73a861..ccc99fb72 100644
      QVERIFY(todo->locationIsRich());
      cal->close();
 diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
-index a6239b910..a743ec62f 100644
+index cc978f7ac..5829e3702 100644
 --- a/autotests/testrecurtodo.cpp
 +++ b/autotests/testrecurtodo.cpp
 @@ -163,7 +163,12 @@ void RecurTodoTest::testRecurTodo_data()
@@ -149,7 +149,7 @@ index a6239b910..a743ec62f 100644
      const QDateTime invalid;
  
 diff --git a/autotests/testtimesininterval.cpp b/autotests/testtimesininterval.cpp
-index 478abd60c..a76343e53 100644
+index 674fad549..1de3ab677 100644
 --- a/autotests/testtimesininterval.cpp
 +++ b/autotests/testtimesininterval.cpp
 @@ -193,7 +193,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
@@ -213,7 +213,7 @@ index eda32db12..c4fa59a23 100644
  #include <QFile>
  #include <QSaveFile>
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index 2e0490257..1317c6074 100644
+index bbe52f707..8ef1f33f8 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
 @@ -32,6 +32,7 @@
@@ -224,7 +224,7 @@ index 2e0490257..1317c6074 100644
  
  #include "kcalendarcore_debug.h"
  
-@@ -1758,7 +1759,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
+@@ -1728,7 +1729,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
              // We can't change that -- in order to retain backwards compatibility.
              text = icalproperty_get_categories(p);
              const QString val = QString::fromUtf8(text);
@@ -233,7 +233,7 @@ index 2e0490257..1317c6074 100644
              for (const QString &cat : lstVal) {
                  // ensure no duplicates
                  if (!categories.contains(cat)) {
-@@ -2522,7 +2523,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -2475,7 +2476,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
      } // end of ICAL_X_PROPERTY
