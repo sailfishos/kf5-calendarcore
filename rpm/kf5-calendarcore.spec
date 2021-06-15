@@ -1,6 +1,6 @@
 Name:       kf5-calendarcore
 Summary:    KDE calendar library
-Version:    5.82.0
+Version:    5.83.0
 Release:    1
 License:    LGPLv2+ and BSD
 URL:        https://invent.kde.org/frameworks/kcalendarcore
@@ -15,7 +15,6 @@ BuildRequires:  pkgconfig(libical)
 BuildRequires:  extra-cmake-modules >= 5.75.0
 
 Patch1: 0001-Adjust-for-lower-Qt-versions.patch
-Patch2: 0002-Add-pkgconfig-packaging.patch
 
 %description
 KDE Framework calendar core library
