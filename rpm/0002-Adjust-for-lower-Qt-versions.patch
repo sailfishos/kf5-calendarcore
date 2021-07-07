@@ -1,7 +1,7 @@
-From 9511a4ba877c2436dc36ed582675a149e70f4763 Mon Sep 17 00:00:00 2001
+From 8df7f131a10ec81f88c038263a233fc0ad6976e0 Mon Sep 17 00:00:00 2001
 From: Damien Caliste <dcaliste@free.fr>
 Date: Tue, 14 May 2019 11:35:15 +0200
-Subject: [PATCH] Adjust for lower Qt versions.
+Subject: [PATCH 2/2] Adjust for lower Qt versions.
 
 ---
  CMakeLists.txt                      |  7 ++-----
@@ -20,7 +20,7 @@ Subject: [PATCH] Adjust for lower Qt versions.
  13 files changed, 84 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 98e0e8489..848f7b853 100644
+index a61fb1cb1..3aef10e80 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,17 +5,16 @@ project(KCalendarCore VERSION ${KF_VERSION})
@@ -398,5 +398,5 @@ index ac52d65d2..3c2d1b27c 100644
  
  #endif
 -- 
-2.30.2
+2.31.1
 
