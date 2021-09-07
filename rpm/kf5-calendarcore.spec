@@ -14,7 +14,8 @@ BuildRequires:  pkgconfig(Qt5Test)
 BuildRequires:  pkgconfig(libical)
 BuildRequires:  extra-cmake-modules >= 5.75.0
 
-Patch2: 0001-Adjust-for-lower-Qt-versions.patch
+Patch1: 0001-Adjust-for-lower-Qt-versions.patch
+Patch2: 0002-Add-Qt5Gui-as-dependency-in-pkgconfig-file.patch
 
 %description
 KDE Framework calendar core library
