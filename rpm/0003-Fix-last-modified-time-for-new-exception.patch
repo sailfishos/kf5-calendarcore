@@ -1,0 +1,36 @@
+From e38b2abdfbddbb43d1e48096c6f6209492316394 Mon Sep 17 00:00:00 2001
+From: Boris Shmarin <b.shmarin@omp.ru>
+Date: Thu, 23 Sep 2021 15:50:37 +0300
+Subject: [PATCH] Set the correct last modified time when creating an exception
+ for a recurring event.
+
+---
+ src/calendar.cpp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/calendar.cpp b/src/calendar.cpp
+index 2a4fef1d0..42d86f71a 100644
+--- a/src/calendar.cpp
++++ b/src/calendar.cpp
+@@ -5,6 +5,7 @@
+   SPDX-FileCopyrightText: 2000-2004 Cornelius Schumacher <schumacher@kde.org>
+   SPDX-FileCopyrightText: 2003-2004 Reinhold Kainhofer <reinhold@kainhofer.com>
+   SPDX-FileCopyrightText: 2006 David Jarvie <djarvie@kde.org>
++  SPDX-FileCopyrightText: 2021 Boris Shmarin <b.shmarin@omp.ru>
+ 
+   SPDX-License-Identifier: LGPL-2.0-or-later
+ */
+@@ -584,7 +585,9 @@ Incidence::Ptr Calendar::createException(const Incidence::Ptr &incidence, const
+     }
+ 
+     Incidence::Ptr newInc(incidence->clone());
+-    newInc->setCreated(QDateTime::currentDateTimeUtc());
++    const QDateTime current = QDateTime::currentDateTimeUtc();
++    newInc->setCreated(current);
++    newInc->setLastModified(current);
+     newInc->setRevision(0);
+     // Recurring exceptions are not support for now
+     newInc->clearRecurrence();
+-- 
+2.25.1
+
