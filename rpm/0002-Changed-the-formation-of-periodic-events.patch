@@ -1,0 +1,37 @@
+From 77466b4602d994c0d1691e90ad1ada6932cd2482 Mon Sep 17 00:00:00 2001
+From: "d.kotin" <d.kotin@omp.ru>
+Date: Tue, 12 Oct 2021 15:06:12 +0000
+Subject: [PATCH] hanged the formation of periodic events. If it falls on a day
+ after the last day of the month (November 31, February 30), then it changes
+ to the last day of the month.
+
+---
+ src/recurrencerule.cpp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/recurrencerule.cpp b/src/recurrencerule.cpp
+index 132deef24..0c756560d 100644
+--- a/src/recurrencerule.cpp
++++ b/src/recurrencerule.cpp
+@@ -56,6 +56,9 @@ public:
+     static QDate getDate(int year, int month, int day)
+     {
+         if (day >= 0) {
++            QDate dt(year, month, 1);
++            if (day > dt.daysInMonth())
++                day = dt.daysInMonth();
+             return QDate(year, month, day);
+         } else {
+             if (++month > 12) {
+@@ -325,7 +328,7 @@ bool Constraint::matches(const QDate &dt, RecurrenceRule::PeriodType type) const
+     if (month > 0 && month != dt.month()) {
+         return false;
+     }
+-    if (day > 0 && day != dt.day()) {
++    if (day > 0 && day != dt.day() && day < dt.daysInMonth()) {
+         return false;
+     }
+     if (day < 0 && dt.day() != (dt.daysInMonth() + day + 1)) {
+-- 
+2.26.2
+

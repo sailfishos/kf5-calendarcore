@@ -15,6 +15,7 @@ BuildRequires:  pkgconfig(libical)
 BuildRequires:  extra-cmake-modules >= 5.75.0
 
 Patch1: 0001-Adjust-for-lower-Qt-versions.patch
+Patch2: 0002-Changed-the-formation-of-periodic-events.patch 
 
 %description
 KDE Framework calendar core library
