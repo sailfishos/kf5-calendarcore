@@ -2,7 +2,7 @@ Name:       kf5-calendarcore
 Summary:    KDE calendar library
 Version:    5.86.0
 Release:    1
-License:    LGPLv2+ and BSD
+License:    LGPLv2+
 URL:        https://invent.kde.org/frameworks/kcalendarcore
 Source0:    %{name}-%{version}.tar.bz2
 Requires(post): /sbin/ldconfig
@@ -20,6 +20,7 @@ Patch1: 0001-Adjust-for-lower-Qt-versions.patch
 KDE Framework calendar core library
 
 %package devel
+License:    LGPLv2+ and BSD
 Summary:    Development files for KF5CalendarCore
 Requires:   %{name} = %{version}-%{release}
 
@@ -46,6 +47,7 @@ make install DESTDIR=%{buildroot}
 %defattr(-,root,root,-)
 %{_datadir}/qlogging-categories5/*categories
 %{_libdir}/libKF5CalendarCore.so.*
+%license LICENSES/LGPL-2.0-or-later.txt
 
 %files devel
 %defattr(-,root,root,-)
@@ -56,3 +58,4 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/cmake/KF5CalendarCore
 %{_libdir}/libKF5CalendarCore.so
 %{_libdir}/pkgconfig/KF5CalendarCore.pc
+%license LICENSES/BSD-3-Clause.txt
