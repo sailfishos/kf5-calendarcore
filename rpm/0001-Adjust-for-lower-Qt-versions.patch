@@ -4,32 +4,36 @@ Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                      |  7 ++-----
+ CMakeLists.txt                      | 13 +++++-------
  autotests/testdateserialization.cpp |  8 ++++++++
+ autotests/testevent.cpp             |  2 +-
+ autotests/testfreebusy.cpp          |  2 +-
  autotests/testfreebusyperiod.cpp    |  4 ++++
  autotests/testicalformat.cpp        |  8 ++++++--
+ autotests/testincidence.cpp         |  6 +++---
  autotests/testmemorycalendar.cpp    |  2 +-
  autotests/testrecurtodo.cpp         |  5 +++++
  autotests/testtimesininterval.cpp   | 12 +++++++++++
- src/CMakeLists.txt                  |  1 +
+ src/CMakeLists.txt                  |  3 ++-
+ src/attendee.h                      |  1 +
  src/calendar.cpp                    |  1 +
  src/icalformat.cpp                  |  1 +
  src/icalformat_p.cpp                |  5 ++++-
  src/occurrenceiterator.cpp          |  1 +
  src/recurrencerule.cpp              | 32 +++++++++++++++++++++++++++++
  src/utils_p.h                       |  8 ++++++++
- 14 files changed, 86 insertions(+), 9 deletions(-)
+ 18 files changed, 96 insertions(+), 18 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8672c2327..9f13b11af 100644
+index 406925e2b..f39c15fab 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,17 +5,16 @@ project(KCalendarCore VERSION ${KF_VERSION})
+@@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF_VERSION})
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.86.0  NO_MODULE)
-+find_package(ECM 5.75.0  NO_MODULE)
+-find_package(ECM 5.90.0  NO_MODULE)
++find_package(ECM 5.89.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
  
@@ -40,16 +44,6 @@ index 8672c2327..9f13b11af 100644
  
  include(KDEInstallDirs)
  include(KDECMakeSettings)
--include(KDEGitCommitHooks)
- include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
- 
- include(ECMGenerateExportHeader)
-@@ -125,5 +124,3 @@ if (NOT WIN32)
- endif()
- 
- feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
--
--kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
 diff --git a/autotests/testdateserialization.cpp b/autotests/testdateserialization.cpp
 index 4c821d45b..9bc28ff9c 100644
 --- a/autotests/testdateserialization.cpp
@@ -78,11 +72,37 @@ index 4c821d45b..9bc28ff9c 100644
      QDateTime dueDate{startDate.addDays(1)};
  
      Todo::Ptr todo(new Todo);
+diff --git a/autotests/testevent.cpp b/autotests/testevent.cpp
+index c1a090c5f..d6f414938 100644
+--- a/autotests/testevent.cpp
++++ b/autotests/testevent.cpp
+@@ -178,7 +178,7 @@ void EventTest::testAssign()
+ 
+     IncidenceBase *event2 = new Event;
+     *event2 = event1;     // Use IncidenceBase's virtual assignment.
+-    QCOMPARE(event1, *event2);
++    QCOMPARE(event1, *static_cast<Event*>(event2));
+ }
+ 
+ void EventTest::testSerializer_data()
+diff --git a/autotests/testfreebusy.cpp b/autotests/testfreebusy.cpp
+index c4c7802a4..ce55355c4 100644
+--- a/autotests/testfreebusy.cpp
++++ b/autotests/testfreebusy.cpp
+@@ -63,7 +63,7 @@ void FreeBusyTest::testAssign()
+ 
+     IncidenceBase *fb2 = new FreeBusy;
+     *fb2 = fb1;     // Use IncidenceBase's virtual assignment.
+-    QCOMPARE(fb1, *fb2);
++    QCOMPARE(fb1, *static_cast<FreeBusy*>(fb2));
+ 
+     fb1.setDtStart(firstDateTime.addDays(1));
+     fb2->setDtStart(firstDateTime.addDays(2));
 diff --git a/autotests/testfreebusyperiod.cpp b/autotests/testfreebusyperiod.cpp
-index 118838b33..b686efb9c 100644
+index 8bee5dc4b..f258d7306 100644
 --- a/autotests/testfreebusyperiod.cpp
 +++ b/autotests/testfreebusyperiod.cpp
-@@ -84,7 +84,11 @@ void FreeBusyPeriodTest::testDataStreamOut()
+@@ -103,7 +103,11 @@ void FreeBusyPeriodTest::testDataStreamOut()
  
  void FreeBusyPeriodTest::testDataStreamIn()
  {
@@ -95,7 +115,7 @@ index 118838b33..b686efb9c 100644
      FreeBusyPeriod p1(p1DateTime, duration);
      p1.setSummary(QStringLiteral("I can haz summary?"));
 diff --git a/autotests/testicalformat.cpp b/autotests/testicalformat.cpp
-index 174a0ac5f..880a63d5c 100644
+index 78d9d6a73..c5647df12 100644
 --- a/autotests/testicalformat.cpp
 +++ b/autotests/testicalformat.cpp
 @@ -204,7 +204,11 @@ void ICalFormatTest::testAlarm()
@@ -128,6 +148,36 @@ index 174a0ac5f..880a63d5c 100644
      QTest::newRow("UTC time")
          << QByteArray("DTSTART:20191113T130000Z")
          << QDateTime(QDate(2019, 11, 13), QTime(13, 00), Qt::UTC);
+diff --git a/autotests/testincidence.cpp b/autotests/testincidence.cpp
+index 6183acf1f..c2789700b 100644
+--- a/autotests/testincidence.cpp
++++ b/autotests/testincidence.cpp
+@@ -103,14 +103,14 @@ void IncidenceTest::testGeo()
+     QCOMPARE(inc.hasGeo(), true);
+     QCOMPARE(inc.geoLatitude(), 90.0);
+     QCOMPARE(inc.geoLongitude(), 180.0);
+-    QCOMPARE(inc.dirtyFields(), (QSet{IncidenceBase::FieldGeoLatitude, IncidenceBase::FieldGeoLongitude}));
++    QCOMPARE(inc.dirtyFields(), (QSet<IncidenceBase::Field>() << IncidenceBase::FieldGeoLatitude << IncidenceBase::FieldGeoLongitude));
+     inc.resetDirtyFields();
+     inc.setGeoLatitude(-90.0);
+     inc.setGeoLongitude(-180.0);
+     QCOMPARE(inc.hasGeo(), true);
+     QCOMPARE(inc.geoLatitude(), -90.0);
+     QCOMPARE(inc.geoLongitude(), -180.0);
+-    QCOMPARE(inc.dirtyFields(), (QSet{IncidenceBase::FieldGeoLatitude, IncidenceBase::FieldGeoLongitude}));
++    QCOMPARE(inc.dirtyFields(), (QSet<IncidenceBase::Field>() << IncidenceBase::FieldGeoLatitude << IncidenceBase::FieldGeoLongitude));
+ 
+     // Clear GEO, thoroughly.
+     inc.resetDirtyFields();
+@@ -122,7 +122,7 @@ void IncidenceTest::testGeo()
+     QCOMPARE(inc.hasGeo(), false);
+     QCOMPARE(inc.geoLatitude(), INVALID_LATLON);
+     QCOMPARE(inc.geoLongitude(), INVALID_LATLON);
+-    QCOMPARE(inc.dirtyFields(), (QSet{IncidenceBase::FieldGeoLatitude, IncidenceBase::FieldGeoLongitude}));
++    QCOMPARE(inc.dirtyFields(), (QSet<IncidenceBase::Field>() << IncidenceBase::FieldGeoLatitude << IncidenceBase::FieldGeoLongitude));
+ 
+     // Error handling.
+ #if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 89)
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
 index ec62d7681..8f2a45fef 100644
 --- a/autotests/testmemorycalendar.cpp
@@ -198,23 +248,23 @@ index b07906277..809f1fd3d 100644
      }
      QCOMPARE(timesInInterval.size(), expectedDays.size());
  }
-diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 9ad4f984d..663e1844d 100644
---- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt
-@@ -44,6 +44,7 @@ target_sources(KF5CalendarCore PRIVATE
-   utils.cpp
-   vcalformat.cpp
-   visitor.cpp
-+  kcalendarcore_debug.cpp
- )
- ecm_qt_declare_logging_category(KF5CalendarCore
-     HEADER kcalendarcore_debug.h
+diff --git a/src/attendee.h b/src/attendee.h
+index 420699b13..5a9b8e125 100644
+--- a/src/attendee.h
++++ b/src/attendee.h
+@@ -18,6 +18,7 @@
+ 
+ #include <QMetaType>
+ #include <QSharedDataPointer>
++#include <QVector>
+ 
+ #include "customproperties.h"
+ #include "kcalendarcore_export.h"
 diff --git a/src/calendar.cpp b/src/calendar.cpp
-index 585469598..2a4fef1d0 100644
+index 12a1a88f7..ca11e226e 100644
 --- a/src/calendar.cpp
 +++ b/src/calendar.cpp
-@@ -27,6 +27,7 @@
+@@ -28,6 +28,7 @@
  #include "icaltimezones_p.h"
  #include "sorting.h"
  #include "visitor.h"
@@ -235,7 +285,7 @@ index d655599cc..17c8befbf 100644
  #include <QFile>
  #include <QSaveFile>
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index e6990dd0e..2563c8506 100644
+index 478196455..58b08f9b6 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
 @@ -28,6 +28,7 @@
@@ -246,7 +296,7 @@ index e6990dd0e..2563c8506 100644
  
  #include "kcalendarcore_debug.h"
  
-@@ -1739,7 +1740,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
+@@ -1741,7 +1742,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
              // We can't change that -- in order to retain backwards compatibility.
              text = icalproperty_get_categories(p);
              const QString val = QString::fromUtf8(text);
@@ -255,7 +305,7 @@ index e6990dd0e..2563c8506 100644
              for (const QString &cat : lstVal) {
                  // ensure no duplicates
                  if (!categories.contains(cat)) {
-@@ -2496,7 +2497,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -2495,7 +2496,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
      } // end of ICAL_X_PROPERTY
@@ -266,7 +316,7 @@ index e6990dd0e..2563c8506 100644
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
 diff --git a/src/occurrenceiterator.cpp b/src/occurrenceiterator.cpp
-index 5e34a1f6b..bc7bd3311 100644
+index 96533282c..94d2660ad 100644
 --- a/src/occurrenceiterator.cpp
 +++ b/src/occurrenceiterator.cpp
 @@ -19,6 +19,7 @@
