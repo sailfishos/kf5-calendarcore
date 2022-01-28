@@ -54,7 +54,6 @@ make install DESTDIR=%{buildroot}
 %defattr(-,root,root,-)
 %{_includedir}/KF5/KCalendarCore
 %{_includedir}/KF5/kcalcore_version.h
-%{_includedir}/KF5/kcalendarcore_version.h
 %{_datadir}/qt5/mkspecs/modules/qt_KCalendarCore.pri
 %{_libdir}/cmake/KF5CalendarCore
 %{_libdir}/libKF5CalendarCore.so
