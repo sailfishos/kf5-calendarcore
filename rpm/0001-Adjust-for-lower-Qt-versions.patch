@@ -32,7 +32,7 @@ index 406925e2b..f39c15fab 100644
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.92.0  NO_MODULE)
+-find_package(ECM 5.93.0  NO_MODULE)
 +find_package(ECM 5.89.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
@@ -65,9 +65,9 @@ index 4c821d45b..9bc28ff9c 100644
  void TestDateSerialization::testTodoCompletedOnce()
  {
 +#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-     QDateTime startDate = QDate(2022, 1, 27).startOfDay();
+     QDateTime startDate = QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1).startOfDay();
 +#else
-+    QDateTime startDate { QDate(2022, 1, 27) };
++    QDateTime startDate { QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1) };
 +#endif
      QDateTime dueDate{startDate.addDays(1)};
  
