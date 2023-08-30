@@ -47,15 +47,15 @@ make install DESTDIR=%{buildroot}
 %files
 %defattr(-,root,root,-)
 %{_datadir}/qlogging-categories5/*categories
-%{_libdir}/libKF5CalendarCore.so.*
+%{_qt5_libdir}/libKF5CalendarCore.so.*
 %license LICENSES/LGPL-2.0-or-later.txt
 
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/KF5/KCalendarCore
 %{_includedir}/KF5/kcalcore_version.h
-%{_datadir}/qt5/mkspecs/modules/qt_KCalendarCore.pri
-%{_libdir}/cmake/KF5CalendarCore
-%{_libdir}/libKF5CalendarCore.so
-%{_libdir}/pkgconfig/KF5CalendarCore.pc
+%{_qt5_archdatadir}/mkspecs/modules/qt_KCalendarCore.pri
+%{_qt5_libdir}/cmake/KF5CalendarCore
+%{_qt5_libdir}/libKF5CalendarCore.so
+%{_qt5_libdir}/pkgconfig/KF5CalendarCore.pc
 %license LICENSES/BSD-3-Clause.txt
