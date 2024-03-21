@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Pekka Vuorela <pekka.vuorela@jolla.com>
+Date: Thu, 21 Mar 2024 11:38:56 +0200
+Subject: [PATCH] Fix Calendar::updateNotebook event visibility updates
+
+Broken by commit 6a18355546. Earlier this was using
+QMultiHash::values(key) for updates but the commit made it loop over
+all the events, thus when some notebook was updating visibility,
+everything got updated accordingly.
+---
+ src/calendar.cpp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/calendar.cpp b/src/calendar.cpp
+index 44146500e..516e9f8e8 100644
+--- a/src/calendar.cpp
++++ b/src/calendar.cpp
+@@ -339,7 +339,10 @@ bool Calendar::updateNotebook(const QString &notebook, bool isVisible)
+         return false;
+     } else {
+         d->mNotebooks.insert(notebook, isVisible);
+-        for (auto noteIt = d->mNotebookIncidences.cbegin(); noteIt != d->mNotebookIncidences.cend(); ++noteIt) {
++
++        for (auto  noteIt = d->mNotebookIncidences.find(notebook);
++             noteIt != d->mNotebookIncidences.end() && noteIt.key() == notebook;
++             ++noteIt) {
+             const Incidence::Ptr &incidence = noteIt.value();
+             auto visibleIt = d->mIncidenceVisibility.find(incidence);
+             if (visibleIt != d->mIncidenceVisibility.end()) {
