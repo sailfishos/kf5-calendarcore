@@ -4,34 +4,44 @@ Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                      |  4 ++--
- autotests/testdateserialization.cpp |  8 ++++++++
- autotests/testevent.cpp             |  2 +-
- autotests/testfreebusy.cpp          |  2 +-
- autotests/testfreebusyperiod.cpp    |  4 ++++
- autotests/testicalformat.cpp        |  8 ++++++--
- autotests/testincidence.cpp         |  6 +++---
- autotests/testmemorycalendar.cpp    |  2 +-
- autotests/testrecurtodo.cpp         |  5 +++++
- autotests/testtimesininterval.cpp   | 12 +++++++++++
- src/attendee.h                      |  1 +
- src/calendar.cpp                    |  1 +
- src/icalformat.cpp                  |  1 +
- src/icalformat_p.cpp                |  5 ++++-
- src/occurrenceiterator.cpp          |  1 +
- src/recurrencerule.cpp              | 32 +++++++++++++++++++++++++++++
- src/utils_p.h                       |  8 ++++++++
- 17 files changed, 91 insertions(+), 11 deletions(-)
+ CMakeLists.txt                        |  4 +-
+ autotests/testdateserialization.cpp   |  8 ++++
+ autotests/testevent.cpp               |  2 +-
+ autotests/testfreebusy.cpp            |  2 +-
+ autotests/testfreebusyperiod.cpp      |  4 ++
+ autotests/testicalformat.cpp          |  8 +++-
+ autotests/testincidence.cpp           |  6 +--
+ autotests/testmemorycalendar.cpp      |  2 +-
+ autotests/testrecurrenceexception.cpp |  2 +-
+ autotests/testrecurtodo.cpp           |  5 +++
+ autotests/testtimesininterval.cpp     | 12 ++++++
+ src/attendee.h                        |  1 +
+ src/calendar.cpp                      |  1 +
+ src/calendar.h                        |  5 +--
+ src/calendarpluginloader.cpp          |  3 ++
+ src/calformat.cpp                     | 61 ++++++++++++++++-----------
+ src/calformat.h                       | 20 +--------
+ src/calformat_p.h                     | 25 -----------
+ src/icalformat.cpp                    | 32 +++-----------
+ src/icalformat.h                      |  9 +---
+ src/icalformat_p.cpp                  |  5 ++-
+ src/occurrenceiterator.cpp            |  1 +
+ src/recurrencerule.cpp                | 32 ++++++++++++++
+ src/utils_p.h                         |  8 ++++
+ src/vcalformat.cpp                    | 16 ++-----
+ src/vcalformat.h                      |  9 +---
+ 26 files changed, 146 insertions(+), 137 deletions(-)
+ delete mode 100644 src/calformat_p.h
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 44c915124..16b2ed83d 100644
+index 7ea32f860..f0231451a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,13 +5,13 @@ project(KCalendarCore VERSION ${KF_VERSION})
  
  # ECM setup
  include(FeatureSummary)
--find_package(ECM 5.93.0  NO_MODULE)
+-find_package(ECM 5.116.0  NO_MODULE)
 +find_package(ECM 5.89.0  NO_MODULE)
  set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
  feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
@@ -44,7 +54,7 @@ index 44c915124..16b2ed83d 100644
  include(KDEInstallDirs)
  include(KDECMakeSettings)
 diff --git a/autotests/testdateserialization.cpp b/autotests/testdateserialization.cpp
-index d28995310..1429efdd3 100644
+index e7b25fa96..35f6c2574 100644
 --- a/autotests/testdateserialization.cpp
 +++ b/autotests/testdateserialization.cpp
 @@ -19,7 +19,11 @@ using namespace KCalendarCore;
@@ -72,7 +82,7 @@ index d28995310..1429efdd3 100644
  
      Todo::Ptr todo(new Todo);
 diff --git a/autotests/testevent.cpp b/autotests/testevent.cpp
-index a6d6193f4..eebb8cdba 100644
+index 923a8a2cd..cd9b33cc7 100644
 --- a/autotests/testevent.cpp
 +++ b/autotests/testevent.cpp
 @@ -205,7 +205,7 @@ void EventTest::testAssign()
@@ -85,7 +95,7 @@ index a6d6193f4..eebb8cdba 100644
  
  void EventTest::testSerializer_data()
 diff --git a/autotests/testfreebusy.cpp b/autotests/testfreebusy.cpp
-index c4c7802a4..ce55355c4 100644
+index a1554c307..505ed9550 100644
 --- a/autotests/testfreebusy.cpp
 +++ b/autotests/testfreebusy.cpp
 @@ -63,7 +63,7 @@ void FreeBusyTest::testAssign()
@@ -98,7 +108,7 @@ index c4c7802a4..ce55355c4 100644
      fb1.setDtStart(firstDateTime.addDays(1));
      fb2->setDtStart(firstDateTime.addDays(2));
 diff --git a/autotests/testfreebusyperiod.cpp b/autotests/testfreebusyperiod.cpp
-index 8bee5dc4b..f258d7306 100644
+index 8ffb3a999..2540395b8 100644
 --- a/autotests/testfreebusyperiod.cpp
 +++ b/autotests/testfreebusyperiod.cpp
 @@ -103,7 +103,11 @@ void FreeBusyPeriodTest::testDataStreamOut()
@@ -114,7 +124,7 @@ index 8bee5dc4b..f258d7306 100644
      FreeBusyPeriod p1(p1DateTime, duration);
      p1.setSummary(QStringLiteral("I can haz summary?"));
 diff --git a/autotests/testicalformat.cpp b/autotests/testicalformat.cpp
-index 4d474bb16..cd3759ec8 100644
+index 54ba2c3cd..624538c18 100644
 --- a/autotests/testicalformat.cpp
 +++ b/autotests/testicalformat.cpp
 @@ -204,7 +204,11 @@ void ICalFormatTest::testAlarm()
@@ -148,7 +158,7 @@ index 4d474bb16..cd3759ec8 100644
          << QByteArray("DTSTART:20191113T130000Z")
          << QDateTime(QDate(2019, 11, 13), QTime(13, 00), Qt::UTC);
 diff --git a/autotests/testincidence.cpp b/autotests/testincidence.cpp
-index 36723c3e6..5f25bc46e 100644
+index 9c6cd72a0..9651e96fb 100644
 --- a/autotests/testincidence.cpp
 +++ b/autotests/testincidence.cpp
 @@ -130,14 +130,14 @@ void IncidenceTest::testGeo()
@@ -178,7 +188,7 @@ index 36723c3e6..5f25bc46e 100644
      // Error handling.
  #if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 89)
 diff --git a/autotests/testmemorycalendar.cpp b/autotests/testmemorycalendar.cpp
-index 96a843946..d1955e2b8 100644
+index 3e7eb765a..2c3ca17b0 100644
 --- a/autotests/testmemorycalendar.cpp
 +++ b/autotests/testmemorycalendar.cpp
 @@ -150,7 +150,7 @@ void MemoryCalendarTest::testIncidences()
@@ -190,8 +200,21 @@ index 96a843946..d1955e2b8 100644
      QVERIFY(todo->summaryIsRich());
      QVERIFY(todo->locationIsRich());
      cal->close();
+diff --git a/autotests/testrecurrenceexception.cpp b/autotests/testrecurrenceexception.cpp
+index 8cea500a4..d42f488d8 100644
+--- a/autotests/testrecurrenceexception.cpp
++++ b/autotests/testrecurrenceexception.cpp
+@@ -38,7 +38,7 @@ void TestRecurrenceException::testCreateTodoException()
+ 
+ void TestRecurrenceException::testUpdateDtStart()
+ {
+-    const QDateTime dtstart(QDate(2025, 07, 22), QTime(13, 55, 0), QTimeZone::UTC);
++    const QDateTime dtstart(QDate(2025, 07, 22), QTime(13, 55, 0), Qt::UTC);
+ 
+     KCalendarCore::Event::Ptr event(new KCalendarCore::Event);
+     event->setDtStart(dtstart);
 diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
-index 0658b3025..b97729fa2 100644
+index c5367165b..f99a09fe9 100644
 --- a/autotests/testrecurtodo.cpp
 +++ b/autotests/testrecurtodo.cpp
 @@ -163,7 +163,12 @@ void RecurTodoTest::testRecurTodo_data()
@@ -208,7 +231,7 @@ index 0658b3025..b97729fa2 100644
      const QDateTime invalid;
  
 diff --git a/autotests/testtimesininterval.cpp b/autotests/testtimesininterval.cpp
-index b07906277..809f1fd3d 100644
+index 398ed7209..8fbed1c18 100644
 --- a/autotests/testtimesininterval.cpp
 +++ b/autotests/testtimesininterval.cpp
 @@ -192,7 +192,11 @@ void TimesInIntervalTest::testLocalTimeHandlingAllDay()
@@ -260,7 +283,7 @@ index 420699b13..5a9b8e125 100644
  #include "customproperties.h"
  #include "kcalendarcore_export.h"
 diff --git a/src/calendar.cpp b/src/calendar.cpp
-index 3d0138f07..44146500e 100644
+index e4c573e05..add8e9896 100644
 --- a/src/calendar.cpp
 +++ b/src/calendar.cpp
 @@ -28,6 +28,7 @@
@@ -271,11 +294,285 @@ index 3d0138f07..44146500e 100644
  
  #include "kcalendarcore_debug.h"
  
+diff --git a/src/calendar.h b/src/calendar.h
+index 87db73f2d..a43fffeec 100644
+--- a/src/calendar.h
++++ b/src/calendar.h
+@@ -50,8 +50,6 @@ This API needs serious cleaning up:
+ /** Namespace for all KCalendarCore types. */
+ namespace KCalendarCore
+ {
+-Q_NAMESPACE_EXPORT(KCALENDARCORE_EXPORT)
+-
+ class CalFilter;
+ class Person;
+ class ICalFormat;
+@@ -105,7 +103,6 @@ enum AccessMode {
+     ReadOnly,
+     ReadWrite,
+ };
+-Q_ENUM_NS(AccessMode)
+ 
+ /**
+   @brief
+@@ -137,7 +134,7 @@ class KCALENDARCORE_EXPORT Calendar : public QObject, public CustomProperties, p
+     Q_PROPERTY(QString id READ id WRITE setId NOTIFY idChanged)
+     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+     Q_PROPERTY(QIcon icon READ icon WRITE setIcon NOTIFY iconChanged)
+-    Q_PROPERTY(KCalendarCore::AccessMode accessMode READ accessMode WRITE setAccessMode NOTIFY accessModeChanged)
++    Q_PROPERTY(AccessMode accessMode READ accessMode WRITE setAccessMode NOTIFY accessModeChanged)
+     Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged)
+ 
+ public:
+diff --git a/src/calendarpluginloader.cpp b/src/calendarpluginloader.cpp
+index f5e03cf02..bc4dc363e 100644
+--- a/src/calendarpluginloader.cpp
++++ b/src/calendarpluginloader.cpp
+@@ -5,9 +5,12 @@
+ 
+ #include "calendarpluginloader.h"
+ 
++#include <memory>
++
+ #include <QCoreApplication>
+ #include <QDirIterator>
+ #include <QPluginLoader>
++#include <QDebug>
+ 
+ using namespace KCalendarCore;
+ 
+diff --git a/src/calformat.cpp b/src/calformat.cpp
+index 3101126ed..353f6dcc8 100644
+--- a/src/calformat.cpp
++++ b/src/calformat.cpp
+@@ -17,33 +17,46 @@
+ */
+ 
+ #include "calformat.h"
+-#include "calformat_p.h"
+ #include "exceptions.h"
+ 
+ #include <QUuid>
+ 
+ using namespace KCalendarCore;
+ 
+-CalFormatPrivate::~CalFormatPrivate() = default;
+-
+-QString CalFormatPrivate::mApplication = QStringLiteral("libkcal");
+-QString CalFormatPrivate::mProductId = QStringLiteral("-//K Desktop Environment//NONSGML libkcal 4.3//EN");
+-
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+-CalFormat::CalFormat()
+-    : d_ptr(new KCalendarCore::CalFormatPrivate)
++/**
++  Private class that helps to provide binary compatibility between releases.
++  @internal
++*/
++//@cond PRIVATE
++class Q_DECL_HIDDEN KCalendarCore::CalFormat::Private
+ {
+-}
+-#endif
++public:
++    Private()
++    {
++    }
++    ~Private()
++    {
++        delete mException;
++    }
++    static QString mApplication; // Name of application, for creating unique ID strings
++    static QString mProductId; // PRODID string to write to calendar files
++    QString mLoadedProductId; // PRODID string loaded from calendar file
++    Exception *mException = nullptr;
++};
++
++QString CalFormat::Private::mApplication = QStringLiteral("libkcal");
++QString CalFormat::Private::mProductId = QStringLiteral("-//K Desktop Environment//NONSGML libkcal 4.3//EN");
++//@endcond
+ 
+-CalFormat::CalFormat(CalFormatPrivate *dd)
+-    : d_ptr(dd)
++CalFormat::CalFormat()
++    : d(new KCalendarCore::CalFormat::Private)
+ {
+ }
+ 
+ CalFormat::~CalFormat()
+ {
+     clearException();
++    delete d;
+ }
+ 
+ bool CalFormat::fromString(const Calendar::Ptr &calendar, const QString &string, const QString &notebook)
+@@ -53,43 +66,45 @@ bool CalFormat::fromString(const Calendar::Ptr &calendar, const QString &string,
+ 
+ void CalFormat::clearException()
+ {
+-    d_ptr->mException.reset();
++    delete d->mException;
++    d->mException = nullptr;
+ }
+ 
+ void CalFormat::setException(Exception *exception)
+ {
+-    d_ptr->mException.reset(exception);
++    delete d->mException;
++    d->mException = exception;
+ }
+ 
+ Exception *CalFormat::exception() const
+ {
+-    return d_ptr->mException.get();
++    return d->mException;
+ }
+ 
+ void CalFormat::setApplication(const QString &application, const QString &productID)
+ {
+-    CalFormatPrivate::mApplication = application;
+-    CalFormatPrivate::mProductId = productID;
++    Private::mApplication = application;
++    Private::mProductId = productID;
+ }
+ 
+ const QString &CalFormat::application()
+ {
+-    return CalFormatPrivate::mApplication;
++    return Private::mApplication;
+ }
+ 
+ const QString &CalFormat::productId()
+ {
+-    return CalFormatPrivate::mProductId;
++    return Private::mProductId;
+ }
+ 
+ QString CalFormat::loadedProductId()
+ {
+-    return d_ptr->mLoadedProductId;
++    return d->mLoadedProductId;
+ }
+ 
+ void CalFormat::setLoadedProductId(const QString &id)
+ {
+-    d_ptr->mLoadedProductId = id;
++    d->mLoadedProductId = id;
+ }
+ 
+ QString CalFormat::createUniqueId()
+@@ -97,11 +112,9 @@ QString CalFormat::createUniqueId()
+     return QUuid::createUuid().toString().mid(1, 36);
+ }
+ 
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+ void CalFormat::virtual_hook(int id, void *data)
+ {
+     Q_UNUSED(id);
+     Q_UNUSED(data);
+     Q_ASSERT(false);
+ }
+-#endif
+diff --git a/src/calformat.h b/src/calformat.h
+index 1dc45e702..b8bea600c 100644
+--- a/src/calformat.h
++++ b/src/calformat.h
+@@ -21,11 +21,8 @@
+ 
+ #include <QString>
+ 
+-#include <memory>
+-
+ namespace KCalendarCore
+ {
+-class CalFormatPrivate;
+ class Exception;
+ 
+ /**
+@@ -38,14 +35,10 @@ class Exception;
+ class KCALENDARCORE_EXPORT CalFormat
+ {
+ public:
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+     /**
+       Constructs a new Calendar Format object.
+-      @deprecated since 5.96, unused with the move to hierarchical dptrs.
+     */
+-    KCALENDARCORE_DEPRECATED_VERSION(5, 96, "unused, see API docs")
+     CalFormat();
+-#endif
+ 
+     /**
+       Destructor.
+@@ -192,26 +185,17 @@ protected:
+     */
+     void setLoadedProductId(const QString &id);
+ 
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+     /**
+       @copydoc
+       IncidenceBase::virtual_hook()
+-      @deprecated since 5.96 unused, hierarchical dptrs provide the same ABI compatible extension vector
+-      as this class is not intended to be inherited externally.
+     */
+-    KCALENDARCORE_DEPRECATED_VERSION(5, 96, "unused, see API docs")
+     virtual void virtual_hook(int id, void *data);
+-#endif
+-
+-    //@cond PRIVATE
+-    KCALENDARCORE_NO_EXPORT explicit CalFormat(CalFormatPrivate *dd);
+-    std::unique_ptr<CalFormatPrivate> d_ptr;
+-    //@endcond
+ 
+ private:
+     //@cond PRIVATE
+     Q_DISABLE_COPY(CalFormat)
+-    Q_DECLARE_PRIVATE(CalFormat)
++    class Private;
++    Private *const d;
+     //@endcond
+ };
+ 
+diff --git a/src/calformat_p.h b/src/calformat_p.h
+deleted file mode 100644
+index 0fa8b4b68..000000000
+--- a/src/calformat_p.h
++++ /dev/null
+@@ -1,25 +0,0 @@
+-/*
+-  SPDX-FileCopyrightText: 2001 Cornelius Schumacher <schumacher@kde.org>
+-  SPDX-License-Identifier: LGPL-2.0-or-later
+-*/
+-
+-#ifndef KCALCORE_CALFORMAT_P_H
+-#define KCALCORE_CALFORMAT_P_H
+-
+-#include "exceptions.h"
+-
+-namespace KCalendarCore
+-{
+-class CalFormatPrivate
+-{
+-public:
+-    virtual ~CalFormatPrivate();
+-
+-    static QString mApplication; // Name of application, for creating unique ID strings
+-    static QString mProductId; // PRODID string to write to calendar files
+-    QString mLoadedProductId; // PRODID string loaded from calendar file
+-    std::unique_ptr<Exception> mException;
+-};
+-}
+-
+-#endif
 diff --git a/src/icalformat.cpp b/src/icalformat.cpp
-index bdf4d3c6c..0cac0d6f3 100644
+index 72a35a0ad..d8353be35 100644
 --- a/src/icalformat.cpp
 +++ b/src/icalformat.cpp
-@@ -21,6 +21,7 @@
+@@ -17,11 +17,11 @@
+ */
+ #include "icalformat.h"
+ #include "calendar_p.h"
+-#include "calformat_p.h"
+ #include "icalformat_p.h"
  #include "icaltimezones_p.h"
  #include "kcalendarcore_debug.h"
  #include "memorycalendar.h"
@@ -283,8 +580,210 @@ index bdf4d3c6c..0cac0d6f3 100644
  
  #include <QFile>
  #include <QSaveFile>
+@@ -38,10 +38,10 @@ extern "C" {
+ using namespace KCalendarCore;
+ 
+ //@cond PRIVATE
+-class KCalendarCore::ICalFormatPrivate : public KCalendarCore::CalFormatPrivate
++class Q_DECL_HIDDEN KCalendarCore::ICalFormat::Private
+ {
+ public:
+-    ICalFormatPrivate(ICalFormat *parent)
++    Private(ICalFormat *parent)
+         : mImpl(parent)
+         , mTimeZone(QTimeZone::utc())
+     {
+@@ -52,13 +52,14 @@ public:
+ //@endcond
+ 
+ ICalFormat::ICalFormat()
+-    : CalFormat(new ICalFormatPrivate(this))
++    : d(new Private(this))
+ {
+ }
+ 
+ ICalFormat::~ICalFormat()
+ {
+     icalmemory_free_ring();
++    delete d;
+ }
+ 
+ bool ICalFormat::load(const Calendar::Ptr &calendar, const QString &fileName)
+@@ -146,8 +147,6 @@ bool ICalFormat::fromString(const Calendar::Ptr &cal, const QString &string, boo
+ 
+ Incidence::Ptr ICalFormat::readIncidence(const QByteArray &string)
+ {
+-    Q_D(ICalFormat);
+-
+     // Let's defend const correctness until the very gates of hell^Wlibical
+     icalcomponent *calendar = icalcomponent_new_from_string(const_cast<char *>(string.constData()));
+     if (!calendar) {
+@@ -183,8 +182,6 @@ Incidence::Ptr ICalFormat::readIncidence(const QByteArray &string)
+ 
+ bool ICalFormat::fromRawString(const Calendar::Ptr &cal, const QByteArray &string, bool deleted, const QString &notebook)
+ {
+-    Q_D(ICalFormat);
+-
+     // Get first VCALENDAR component.
+     // TODO: Handle more than one VCALENDAR or non-VCALENDAR top components
+     icalcomponent *calendar;
+@@ -239,8 +236,6 @@ bool ICalFormat::fromRawString(const Calendar::Ptr &cal, const QByteArray &strin
+ 
+ Incidence::Ptr ICalFormat::fromString(const QString &string)
+ {
+-    Q_D(ICalFormat);
+-
+     MemoryCalendar::Ptr cal(new MemoryCalendar(d->mTimeZone));
+     fromString(cal, string);
+ 
+@@ -250,8 +245,6 @@ Incidence::Ptr ICalFormat::fromString(const QString &string)
+ 
+ QString ICalFormat::toString(const Calendar::Ptr &cal, const QString &notebook, bool deleted)
+ {
+-    Q_D(ICalFormat);
+-
+     icalcomponent *calendar = d->mImpl.createCalendarComponent(cal);
+     icalcomponent *component;
+ 
+@@ -331,8 +324,6 @@ QString ICalFormat::toString(const Calendar::Ptr &cal, const QString &notebook,
+ 
+ QString ICalFormat::toICalString(const Incidence::Ptr &incidence)
+ {
+-    Q_D(ICalFormat);
+-
+     MemoryCalendar::Ptr cal(new MemoryCalendar(d->mTimeZone));
+     cal->addIncidence(Incidence::Ptr(incidence->clone()));
+     return toString(cal.staticCast<Calendar>());
+@@ -345,7 +336,6 @@ QString ICalFormat::toString(const Incidence::Ptr &incidence)
+ 
+ QByteArray ICalFormat::toRawString(const Incidence::Ptr &incidence)
+ {
+-    Q_D(ICalFormat);
+     TimeZoneList tzUsedList;
+ 
+     icalcomponent *component = d->mImpl.writeIncidence(incidence, iTIPRequest, &tzUsedList);
+@@ -377,7 +367,6 @@ QByteArray ICalFormat::toRawString(const Incidence::Ptr &incidence)
+ 
+ QString ICalFormat::toString(RecurrenceRule *recurrence)
+ {
+-    Q_D(ICalFormat);
+     icalproperty *property = icalproperty_new_rrule(d->mImpl.writeRecurrenceRule(recurrence));
+     QString text = QString::fromUtf8(icalproperty_as_ical_string(property));
+     icalproperty_free(property);
+@@ -386,7 +375,6 @@ QString ICalFormat::toString(RecurrenceRule *recurrence)
+ 
+ QString KCalendarCore::ICalFormat::toString(const KCalendarCore::Duration &duration) const
+ {
+-    Q_D(const ICalFormat);
+     const auto icalDuration = d->mImpl.writeICalDuration(duration);
+     // contrary to the libical API docs, the returned string is actually freed by icalmemory_free_ring,
+     // freeing it here explicitly causes a double deletion failure
+@@ -395,7 +383,6 @@ QString KCalendarCore::ICalFormat::toString(const KCalendarCore::Duration &durat
+ 
+ bool ICalFormat::fromString(RecurrenceRule *recurrence, const QString &rrule)
+ {
+-    Q_D(ICalFormat);
+     if (!recurrence) {
+         return false;
+     }
+@@ -416,7 +403,6 @@ bool ICalFormat::fromString(RecurrenceRule *recurrence, const QString &rrule)
+ 
+ Duration ICalFormat::durationFromString(const QString &duration) const
+ {
+-    Q_D(const ICalFormat);
+     icalerror_clear_errno();
+     const auto icalDuration = icaldurationtype_from_string(duration.toUtf8().constData());
+     if (icalerrno != ICAL_NO_ERROR) {
+@@ -428,7 +414,6 @@ Duration ICalFormat::durationFromString(const QString &duration) const
+ 
+ QString ICalFormat::createScheduleMessage(const IncidenceBase::Ptr &incidence, iTIPMethod method)
+ {
+-    Q_D(ICalFormat);
+     icalcomponent *message = nullptr;
+ 
+     if (incidence->type() == Incidence::TypeEvent || incidence->type() == Incidence::TypeTodo) {
+@@ -474,7 +459,6 @@ QString ICalFormat::createScheduleMessage(const IncidenceBase::Ptr &incidence, i
+ 
+ FreeBusy::Ptr ICalFormat::parseFreeBusy(const QString &str)
+ {
+-    Q_D(ICalFormat);
+     clearException();
+ 
+     icalcomponent *message = icalparser_parse_string(str.toUtf8().constData());
+@@ -508,7 +492,6 @@ FreeBusy::Ptr ICalFormat::parseFreeBusy(const QString &str)
+ 
+ ScheduleMessage::Ptr ICalFormat::parseScheduleMessage(const Calendar::Ptr &cal, const QString &messageText)
+ {
+-    Q_D(ICalFormat);
+     setTimeZone(cal->timeZone());
+     clearException();
+ 
+@@ -665,27 +648,22 @@ ScheduleMessage::Ptr ICalFormat::parseScheduleMessage(const Calendar::Ptr &cal,
+ 
+ void ICalFormat::setTimeZone(const QTimeZone &timeZone)
+ {
+-    Q_D(ICalFormat);
+     d->mTimeZone = timeZone;
+ }
+ 
+ QTimeZone ICalFormat::timeZone() const
+ {
+-    Q_D(const ICalFormat);
+     return d->mTimeZone;
+ }
+ 
+ QByteArray ICalFormat::timeZoneId() const
+ {
+-    Q_D(const ICalFormat);
+     return d->mTimeZone.id();
+ }
+ 
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+ void ICalFormat::virtual_hook(int id, void *data)
+ {
+     Q_UNUSED(id);
+     Q_UNUSED(data);
+     Q_ASSERT(false);
+ }
+-#endif
+diff --git a/src/icalformat.h b/src/icalformat.h
+index 3c1058cca..a857ca7d5 100644
+--- a/src/icalformat.h
++++ b/src/icalformat.h
+@@ -24,7 +24,6 @@
+ namespace KCalendarCore
+ {
+ class FreeBusy;
+-class ICalFormatPrivate;
+ class Incidence;
+ class IncidenceBase;
+ class RecurrenceRule;
+@@ -227,21 +226,17 @@ public:
+     Q_REQUIRED_RESULT QByteArray timeZoneId() const;
+ 
+ protected:
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+     /**
+       @copydoc
+       IncidenceBase::virtual_hook()
+     */
+     void virtual_hook(int id, void *data) override;
+-#endif
+ 
+ private:
+     //@cond PRIVATE
+     Q_DISABLE_COPY(ICalFormat)
+-    Q_DECLARE_PRIVATE(ICalFormat)
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+-    void *unused; // former dptr, just kept for ABI compatibility
+-#endif
++    class Private;
++    Private *const d;
+     //@endcond
+ };
+ 
 diff --git a/src/icalformat_p.cpp b/src/icalformat_p.cpp
-index 9ede8ea68..48836cafc 100644
+index 62d5d022f..7ae98f051 100644
 --- a/src/icalformat_p.cpp
 +++ b/src/icalformat_p.cpp
 @@ -28,6 +28,7 @@
@@ -295,7 +794,7 @@ index 9ede8ea68..48836cafc 100644
  
  #include "kcalendarcore_debug.h"
  
-@@ -1742,7 +1743,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
+@@ -1714,7 +1715,7 @@ void ICalFormatImpl::readIncidence(icalcomponent *parent, const Incidence::Ptr &
              // We can't change that -- in order to retain backwards compatibility.
              text = icalproperty_get_categories(p);
              const QString val = QString::fromUtf8(text);
@@ -304,7 +803,7 @@ index 9ede8ea68..48836cafc 100644
              for (const QString &cat : lstVal) {
                  // ensure no duplicates
                  if (!categories.contains(cat)) {
-@@ -2513,7 +2514,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
+@@ -2484,7 +2485,9 @@ QDateTime ICalFormatImpl::readICalDateTimeProperty(icalproperty *p, const ICalTi
              break;
          }
      } // end of ICAL_X_PROPERTY
@@ -315,7 +814,7 @@ index 9ede8ea68..48836cafc 100644
          switch (kind) {
          case ICAL_RDATE_PROPERTY:
 diff --git a/src/occurrenceiterator.cpp b/src/occurrenceiterator.cpp
-index 00c2a7a52..4c18a0b65 100644
+index 604c4d57f..c9467f03a 100644
 --- a/src/occurrenceiterator.cpp
 +++ b/src/occurrenceiterator.cpp
 @@ -19,6 +19,7 @@
@@ -468,3 +967,151 @@ index ad43cd2d4..e87ea853c 100644
  }
  
  #endif
+diff --git a/src/vcalformat.cpp b/src/vcalformat.cpp
+index 9235404a3..60fbc77df 100644
+--- a/src/vcalformat.cpp
++++ b/src/vcalformat.cpp
+@@ -23,7 +23,6 @@
+ */
+ #include "vcalformat.h"
+ #include "calendar.h"
+-#include "calformat_p.h"
+ #include "exceptions.h"
+ 
+ #include "kcalendarcore_debug.h"
+@@ -62,7 +61,7 @@ void removeAllVCal(QVector<QSharedPointer<K>> &c, const QSharedPointer<K> &x)
+     c.remove(c.indexOf(x));
+ }
+ 
+-class KCalendarCore::VCalFormatPrivate : public CalFormatPrivate
++class Q_DECL_HIDDEN KCalendarCore::VCalFormat::Private
+ {
+ public:
+     Calendar::Ptr mCalendar;
+@@ -73,12 +72,13 @@ public:
+ //@endcond
+ 
+ VCalFormat::VCalFormat()
+-    : CalFormat(new KCalendarCore::VCalFormatPrivate)
++    : d(new KCalendarCore::VCalFormat::Private)
+ {
+ }
+ 
+ VCalFormat::~VCalFormat()
+ {
++    delete d;
+ }
+ 
+ static void mimeErrorHandler(char *e)
+@@ -88,7 +88,6 @@ static void mimeErrorHandler(char *e)
+ 
+ bool VCalFormat::load(const Calendar::Ptr &calendar, const QString &fileName)
+ {
+-    Q_D(VCalFormat);
+     d->mCalendar = calendar;
+ 
+     clearException();
+@@ -135,7 +134,6 @@ bool VCalFormat::fromString(const Calendar::Ptr &calendar, const QString &string
+ 
+ bool VCalFormat::fromRawString(const Calendar::Ptr &calendar, const QByteArray &string, bool deleted, const QString &notebook)
+ {
+-    Q_D(VCalFormat);
+     d->mCalendar = calendar;
+ 
+     if (!string.size()) {
+@@ -174,7 +172,6 @@ QString VCalFormat::toString(const Calendar::Ptr &calendar, const QString &noteb
+ 
+ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+ {
+-    Q_D(VCalFormat);
+     VObject *vo = nullptr;
+     VObjectIterator voi;
+     char *s = nullptr;
+@@ -641,7 +638,6 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+ 
+ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
+ {
+-    Q_D(VCalFormat);
+     VObject *vo = nullptr;
+     VObjectIterator voi;
+     char *s = nullptr;
+@@ -1216,7 +1212,6 @@ QString VCalFormat::qDateToISO(const QDate &qd)
+ 
+ QString VCalFormat::qDateTimeToISO(const QDateTime &dt, bool zulu)
+ {
+-    Q_D(VCalFormat);
+     if (!dt.isValid()) {
+         return QString();
+     }
+@@ -1242,7 +1237,6 @@ QString VCalFormat::qDateTimeToISO(const QDateTime &dt, bool zulu)
+ 
+ QDateTime VCalFormat::ISOToQDateTime(const QString &dtStr)
+ {
+-    Q_D(VCalFormat);
+ #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+     auto noAllocString = QStringView{dtStr};
+ #else
+@@ -1360,7 +1354,6 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
+ // that is used internally in the VCalFormat.
+ void VCalFormat::populate(VObject *vcal, bool deleted, const QString &notebook)
+ {
+-    Q_D(VCalFormat);
+     Q_UNUSED(notebook);
+     // this function will populate the caldict dictionary and other event
+     // lists. It turns vevents into Events and then inserts them.
+@@ -1708,7 +1701,6 @@ void VCalFormat::readCustomProperties(VObject *o, const Incidence::Ptr &i)
+ 
+ void VCalFormat::writeCustomProperties(VObject *o, const Incidence::Ptr &i)
+ {
+-    Q_D(VCalFormat);
+     const QMap<QByteArray, QString> custom = i->customProperties();
+     for (auto cIt = custom.cbegin(); cIt != custom.cend(); ++cIt) {
+         const QByteArray property = cIt.key();
+@@ -1720,11 +1712,9 @@ void VCalFormat::writeCustomProperties(VObject *o, const Incidence::Ptr &i)
+     }
+ }
+ 
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+ void VCalFormat::virtual_hook(int id, void *data)
+ {
+     Q_UNUSED(id);
+     Q_UNUSED(data);
+     Q_ASSERT(false);
+ }
+-#endif
+diff --git a/src/vcalformat.h b/src/vcalformat.h
+index 29b01d69a..575988cc1 100644
+--- a/src/vcalformat.h
++++ b/src/vcalformat.h
+@@ -47,7 +47,6 @@ namespace KCalendarCore
+ {
+ class Event;
+ class Todo;
+-class VCalFormatPrivate;
+ 
+ /**
+   @brief
+@@ -201,21 +200,17 @@ protected:
+     void writeCustomProperties(VObject *o, const Incidence::Ptr &i);
+ 
+ protected:
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+     /**
+       @copydoc
+       IncidenceBase::virtual_hook()
+     */
+     void virtual_hook(int id, void *data) override;
+-#endif
+ 
+ private:
+     //@cond PRIVATE
+     Q_DISABLE_COPY(VCalFormat)
+-    Q_DECLARE_PRIVATE(VCalFormat)
+-#if KCALENDARCORE_BUILD_DEPRECATED_SINCE(5, 96)
+-    void *unused; // former dptr, just kept for ABI compatibility
+-#endif
++    class Private;
++    Private *const d;
+     //@endcond
+ };
+ 

@@ -9,10 +9,10 @@ This reverts commit 80ccb98039bc361b6f3c45e7cf44c28d03b0844b.
  1 file changed, 40 insertions(+), 69 deletions(-)
 
 diff --git a/src/vcalformat.cpp b/src/vcalformat.cpp
-index 054f67719..a64991fe2 100644
+index 60fbc77df..4467158d4 100644
 --- a/src/vcalformat.cpp
 +++ b/src/vcalformat.cpp
-@@ -328,15 +328,12 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+@@ -330,15 +330,12 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
          uint recurrenceType = Recurrence::rNone;
          int recurrenceTypeAbbrLen = 0;
  
@@ -29,7 +29,7 @@ index 054f67719..a64991fe2 100644
              // first, read the type of the recurrence
              recurrenceTypeAbbrLen = 1;
              if (tmpStr.at(0) == QLatin1Char('D')) {
-@@ -345,13 +342,13 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+@@ -347,13 +344,13 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
                  recurrenceType = Recurrence::rWeekly;
              } else if (tmpStrLen > 1) {
                  recurrenceTypeAbbrLen = 2;
@@ -47,7 +47,7 @@ index 054f67719..a64991fe2 100644
                      recurrenceType = Recurrence::rYearlyDay;
                  }
              }
-@@ -361,11 +358,7 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+@@ -363,11 +360,7 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
              // Immediately after the type is the frequency
              int index = tmpStr.indexOf(QLatin1Char(' '));
              int last = tmpStr.lastIndexOf(QLatin1Char(' ')) + 1; // find last entry
@@ -60,7 +60,7 @@ index 054f67719..a64991fe2 100644
              ++index; // advance to beginning of stuff after freq
  
              // Read the type-specific settings
-@@ -499,12 +492,8 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
+@@ -501,12 +494,8 @@ Todo::Ptr VCalFormat::VTodoToEvent(VObject *vtodo)
              index = last;
              if (tmpStr.mid(index, 1) == QLatin1String("#")) {
                  // Nr of occurrences
@@ -75,7 +75,7 @@ index 054f67719..a64991fe2 100644
                  if (rDuration > 0) {
                      anEvent->recurrence()->setDuration(rDuration);
                  }
-@@ -779,8 +768,6 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
+@@ -781,8 +770,6 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
          const int tmpStrLen = tmpStr.length();
          if (tmpStrLen > 0) {
              tmpStr = tmpStr.toUpper();
@@ -84,7 +84,7 @@ index 054f67719..a64991fe2 100644
              // first, read the type of the recurrence
              recurrenceTypeAbbrLen = 1;
              if (tmpStr.at(0) == QLatin1Char('D')) {
-@@ -789,13 +776,13 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
+@@ -791,13 +778,13 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
                  recurrenceType = Recurrence::rWeekly;
              } else if (tmpStrLen > 1) {
                  recurrenceTypeAbbrLen = 2;
@@ -102,7 +102,7 @@ index 054f67719..a64991fe2 100644
                      recurrenceType = Recurrence::rYearlyDay;
                  }
              }
-@@ -805,11 +792,7 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
+@@ -807,11 +794,7 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
              // Immediately after the type is the frequency
              int index = tmpStr.indexOf(QLatin1Char(' '));
              int last = tmpStr.lastIndexOf(QLatin1Char(' ')) + 1; // find last entry
@@ -115,7 +115,7 @@ index 054f67719..a64991fe2 100644
              ++index; // advance to beginning of stuff after freq
  
              // Read the type-specific settings
-@@ -943,12 +926,8 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
+@@ -945,12 +928,8 @@ Event::Ptr VCalFormat::VEventToEvent(VObject *vevent)
              index = last;
              if (tmpStr.mid(index, 1) == QLatin1String("#")) {
                  // Nr of occurrences
@@ -130,7 +130,7 @@ index 054f67719..a64991fe2 100644
                  if (rDuration > 0) {
                      anEvent->recurrence()->setDuration(rDuration);
                  }
-@@ -1235,22 +1214,24 @@ QString VCalFormat::qDateTimeToISO(const QDateTime &dt, bool zulu)
+@@ -1237,22 +1216,24 @@ QString VCalFormat::qDateTimeToISO(const QDateTime &dt, bool zulu)
  
  QDateTime VCalFormat::ISOToQDateTime(const QString &dtStr)
  {
@@ -169,7 +169,7 @@ index 054f67719..a64991fe2 100644
      tmpTime.setHMS(hour, minute, second);
  
      if (tmpDate.isValid() && tmpTime.isValid()) {
-@@ -1260,22 +1241,20 @@ QDateTime VCalFormat::ISOToQDateTime(const QString &dtStr)
+@@ -1262,22 +1243,20 @@ QDateTime VCalFormat::ISOToQDateTime(const QString &dtStr)
          } else {
              return QDateTime(tmpDate, tmpTime, d->mCalendar->timeZone());
          }
@@ -200,7 +200,7 @@ index 054f67719..a64991fe2 100644
  
      return QDate(year, month, day);
  }
-@@ -1290,7 +1269,7 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
+@@ -1292,7 +1271,7 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
      // We also accept broken one without +
      int mod = 1;
      int v = 0;
@@ -209,7 +209,7 @@ index 054f67719..a64991fe2 100644
      int ofs = 0;
      result = 0;
  
-@@ -1315,11 +1294,7 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
+@@ -1317,11 +1296,7 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
          return false;
      }
  
@@ -221,7 +221,7 @@ index 054f67719..a64991fe2 100644
      if (!ok) {
          return false;
      }
-@@ -1333,11 +1308,7 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
+@@ -1335,11 +1310,7 @@ bool VCalFormat::parseTZOffsetISO8601(const QString &s, int &result)
              if (str.size() < (ofs + 2)) {
                  return false;
              }
