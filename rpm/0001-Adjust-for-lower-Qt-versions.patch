@@ -4,33 +4,32 @@ Date: Tue, 14 May 2019 11:35:15 +0200
 Subject: [PATCH] Adjust for lower Qt versions.
 
 ---
- CMakeLists.txt                        |  4 +-
- autotests/testdateserialization.cpp   |  8 ++++
- autotests/testevent.cpp               |  2 +-
- autotests/testfreebusy.cpp            |  2 +-
- autotests/testfreebusyperiod.cpp      |  4 ++
- autotests/testicalformat.cpp          |  8 +++-
- autotests/testincidence.cpp           |  6 +--
- autotests/testmemorycalendar.cpp      |  2 +-
- autotests/testrecurrenceexception.cpp |  2 +-
- autotests/testrecurtodo.cpp           |  5 +++
- autotests/testtimesininterval.cpp     | 12 ++++++
- src/attendee.h                        |  1 +
- src/calendar.cpp                      |  1 +
- src/calendar.h                        |  5 +--
- src/calendarpluginloader.cpp          |  3 ++
- src/calformat.cpp                     | 61 ++++++++++++++++-----------
- src/calformat.h                       | 20 +--------
- src/calformat_p.h                     | 25 -----------
- src/icalformat.cpp                    | 32 +++-----------
- src/icalformat.h                      |  9 +---
- src/icalformat_p.cpp                  |  5 ++-
- src/occurrenceiterator.cpp            |  1 +
- src/recurrencerule.cpp                | 32 ++++++++++++++
- src/utils_p.h                         |  8 ++++
- src/vcalformat.cpp                    | 16 ++-----
- src/vcalformat.h                      |  9 +---
- 26 files changed, 146 insertions(+), 137 deletions(-)
+ CMakeLists.txt                      |  4 +-
+ autotests/testdateserialization.cpp |  8 ++++
+ autotests/testevent.cpp             |  2 +-
+ autotests/testfreebusy.cpp          |  2 +-
+ autotests/testfreebusyperiod.cpp    |  4 ++
+ autotests/testicalformat.cpp        |  8 +++-
+ autotests/testincidence.cpp         |  6 +--
+ autotests/testmemorycalendar.cpp    |  2 +-
+ autotests/testrecurtodo.cpp         |  5 +++
+ autotests/testtimesininterval.cpp   | 12 ++++++
+ src/attendee.h                      |  1 +
+ src/calendar.cpp                    |  1 +
+ src/calendar.h                      |  5 +--
+ src/calendarpluginloader.cpp        |  3 ++
+ src/calformat.cpp                   | 61 +++++++++++++++++------------
+ src/calformat.h                     | 20 +---------
+ src/calformat_p.h                   | 25 ------------
+ src/icalformat.cpp                  | 32 +++------------
+ src/icalformat.h                    |  9 +----
+ src/icalformat_p.cpp                |  5 ++-
+ src/occurrenceiterator.cpp          |  1 +
+ src/recurrencerule.cpp              | 32 +++++++++++++++
+ src/utils_p.h                       |  8 ++++
+ src/vcalformat.cpp                  | 16 ++------
+ src/vcalformat.h                    |  9 +----
+ 25 files changed, 145 insertions(+), 136 deletions(-)
  delete mode 100644 src/calformat_p.h
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
@@ -200,19 +199,6 @@ index 3e7eb765a..2c3ca17b0 100644
      QVERIFY(todo->summaryIsRich());
      QVERIFY(todo->locationIsRich());
      cal->close();
-diff --git a/autotests/testrecurrenceexception.cpp b/autotests/testrecurrenceexception.cpp
-index 8cea500a4..d42f488d8 100644
---- a/autotests/testrecurrenceexception.cpp
-+++ b/autotests/testrecurrenceexception.cpp
-@@ -38,7 +38,7 @@ void TestRecurrenceException::testCreateTodoException()
- 
- void TestRecurrenceException::testUpdateDtStart()
- {
--    const QDateTime dtstart(QDate(2025, 07, 22), QTime(13, 55, 0), QTimeZone::UTC);
-+    const QDateTime dtstart(QDate(2025, 07, 22), QTime(13, 55, 0), Qt::UTC);
- 
-     KCalendarCore::Event::Ptr event(new KCalendarCore::Event);
-     event->setDtStart(dtstart);
 diff --git a/autotests/testrecurtodo.cpp b/autotests/testrecurtodo.cpp
 index c5367165b..f99a09fe9 100644
 --- a/autotests/testrecurtodo.cpp
