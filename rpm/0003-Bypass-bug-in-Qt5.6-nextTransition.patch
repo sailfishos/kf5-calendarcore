@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Damien Caliste <dcaliste@free.fr>
+Date: Wed, 14 Oct 2026 15:37:03 +0200
+Subject: [PATCH] Bypass bug in Qt5.6 nextTransition().
+
+This patch is not for upstream. It is
+circumventing a bug in Qt5.6 where the
+nextTransition() (either by itself, or
+inside transitions()) is failing to return
+the next transition for Europe/Paris on
+31/03/1996. This was the last transition
+before switching to winter time in October
+instead of September.
+---
+ src/icaltimezones.cpp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/icaltimezones.cpp b/src/icaltimezones.cpp
+index 6a565daf6..41431cfc1 100644
+--- a/src/icaltimezones.cpp
++++ b/src/icaltimezones.cpp
+@@ -185,7 +185,12 @@ icalcomponent *ICalTimeZoneParser::icalcomponentFromQTimeZone(const QTimeZone &t
+ 
+     // Compile an ordered list of transitions so that we can know the phases
+     // which occur before and after each transition.
+-    QTimeZone::OffsetDataList transits = tz.transitions(QDateTime(), MAX_DATE());
++    QTimeZone::OffsetDataList transits;
++    QTimeZone::OffsetData at = tz.nextTransition(QDateTime());
++    while (at.atUtc.isValid() && at.atUtc < MAX_DATE()) {
++        transits.append(at);
++        at = tz.nextTransition(at.atUtc.addDays(1));
++    }
+     if (transits.isEmpty()) {
+         // If there is no way to compile a complete list of transitions
+         // transitions() can return an empty list
